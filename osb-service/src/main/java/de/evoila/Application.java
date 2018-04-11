@@ -7,21 +7,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.system.ApplicationPidFileWriter;
+import org.springframework.cloud.bus.BusAutoConfiguration;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
-import de.evoila.cf.cpi.custom.props.CouchDBCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.
  * Deploying to Space for testing purposes is as follows:
  * `cf create-service-broker name username password url --space-scoped`
  */
+@RefreshScope
 @SpringBootApplication
+@EnableAutoConfiguration(exclude = { RabbitAutoConfiguration.class, BusAutoConfiguration.class })
 public class Application {
 
 	@Bean(name = "customProperties")
@@ -29,11 +34,6 @@ public class Application {
 		Map<String, String> customProperties = new HashMap<String, String>();
 
 		return customProperties;
-	}
-
-	@Bean
-	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new CouchDBCustomPropertyHandler();
 	}
 
 	public static void main(String[] args) {

@@ -7,4 +7,6 @@ spring:
 existing:
   endpoint:
     hosts:
-      - 127.0.0.1
+      - ip: localhost
+        name: couchdb
+        port: 5984
