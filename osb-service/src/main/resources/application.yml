@@ -17,7 +17,9 @@ spring:
 existing:
   endpoint:
     hosts:
-      - 127.0.0.1
+      - ip: localhost
+        name: couchdb
+        port: 5984
     port: 5984
     database: _users
     username: admin
@@ -71,7 +73,7 @@ catalog:
       plans:
       - id: 5678-1234
         name: m
-        description: Aa simple sample Local plan.
+        description: A simple sample Local plan.
         free: false
         volumeSize: 25
         volumeUnit: M
