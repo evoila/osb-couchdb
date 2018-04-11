@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.Application;
+import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.model.*;
-import de.evoila.cf.broker.service.custom.CouchDbExistingServiceFactory;
-import de.evoila.cf.broker.service.sample.CouchDbCustomImplementation;
-import de.evoila.cf.broker.service.sample.raw.CouchDbService;
+import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
+import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
+import de.evoila.cf.broker.custom.couchdb.CouchDbService;
 import de.evoila.cf.cpi.existing.ExistingServiceFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import de.evoila.cf.broker.service.custom.*;
+import de.evoila.cf.broker.custom.couchdb.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +41,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
 @ContextConfiguration(classes = Application.class, loader = AnnotationConfigContextLoader.class, initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles(profiles={"default", "cluster"})
+//@ActiveProfiles(profiles={"default", "cluster"})
+@ActiveProfiles("default")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
 public class CouchDbBindingTest {
@@ -48,13 +50,13 @@ public class CouchDbBindingTest {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
+    private ExistingEndpointBean bean;
+
+    @Autowired
     private CouchDbCustomImplementation conn;
 
     @Autowired
     private ExistingServiceFactory service;
-
-    @Autowired
-    private CouchDbExistingServiceFactory couchService;
 
     private ServiceInstance serviceInstance = new ServiceInstance("instance_binding", "service_def", "s", "d", "d", new HashMap<>(), "d");
 
@@ -102,14 +104,12 @@ public class CouchDbBindingTest {
     public void test_on_instance() throws Exception {
 
         Plan p = new Plan();
+        p.setId("1234-5678");
+        p.setPlatform(Platform.EXISTING_SERVICE);
         service.createInstance(serviceInstance, p, new HashMap<String, String>());
 
-        CouchDbClient cl = ((CouchDbService)conn.connection(couchService.getHosts(),
-                                                            couchService.getPort(),
-                                                            serviceInstance.getId(),
-                                                            couchService.getUsername(),
-                                                            couchService.getPassword()
-                                                            )
+        CouchDbClient cl = conn.connection(bean.getUsername(), bean.getPassword(),
+                                                            serviceInstance.getId(), bean.getHosts()
                             ).getCouchDbClient();
 
         JsonObject j=cl.find(JsonObject.class, "_security");
@@ -117,14 +117,9 @@ public class CouchDbBindingTest {
 
         cl.context().deleteDB(serviceInstance.getId(), "delete database");
 
-        CouchDbClient cl1 = ((CouchDbService)conn.connection(couchService.getHosts(),
-                couchService.getPort(),
-                couchService.getDatabase(),
-                couchService.getUsername(),
-                couchService.getPassword()
-        )
-        ).getCouchDbClient();
-        JsonObject j1=cl1.find(JsonObject.class, "org.couchdb.user:db-instance_binding");
+        CouchDbClient cl1 = conn.connection(bean.getUsername(), bean.getPassword(),
+                bean.getDatabase(), bean.getHosts()).getCouchDbClient();
+        JsonObject j1=cl1.find(JsonObject.class, "org.couchdb.user:"+serviceInstance.getUsername());
         cl1.remove(j1);
     }
 }

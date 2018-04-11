@@ -1,13 +1,10 @@
 import de.evoila.Application;
+import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.model.*;
-import de.evoila.cf.broker.service.DeploymentServiceImpl;
-import de.evoila.cf.broker.service.custom.CouchDbExistingServiceFactory;
-import de.evoila.cf.broker.service.impl.BindingServiceImpl;
-import de.evoila.cf.broker.service.sample.CouchDbCustomImplementation;
-import de.evoila.cf.broker.service.sample.raw.CouchDbService;
+import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
+import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lightcouch.CouchDbClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,20 +34,33 @@ public class ConnectionTest {
     @Autowired
     private CouchDbExistingServiceFactory couchService;
 
+    @Autowired
+    private ExistingEndpointBean bean;
+
+    private ServiceInstance serviceInstance = new ServiceInstance("instance_binding", "service_def", "s", "d", "d", new HashMap<>(), "d");
 
     @Test
     public void testConnection () throws Exception {
 
-        int port = couchService.getPort();
-        List<String> hosts = couchService.getHosts();
-        String database = couchService.getDatabase();
-        String username = couchService.getUsername();
-        String password = couchService.getPassword();
+        int port = bean.getPort();
+        List<ServerAddress> hosts = bean.getHosts();
+        String database = bean.getDatabase();
+        String username = bean.getUsername();
+        String password = bean.getPassword();
 
-        conn.connection(hosts, port, database, username, password);
+
+        Plan p = new Plan();
+        conn.connection(username, password, database, hosts);
+
+        //conn.connection(hosts, port, database, username, password);
+        //List<ServerAddress> sa = new ArrayList<>();
+        //sa.add(bean.getHosts().get(0));
+        //conn.connection(bean.getUsername(), bean.getPassword(), bean.getDatabase(), sa);
+
+
         assertNotNull(conn.getService());
         assertTrue(conn.getService().isConnected());
-        assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+hosts.get(0)+":"+port+"/"+couchService.getDatabase()+"/");
+    //    assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+hosts.get(0)+":"+port+"/"+couchService.getDatabase()+"/");
+        assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+bean.getHosts().get(0).getIp()+":"+port+"/"+bean.getDatabase()+"/");
     }
-
 }
