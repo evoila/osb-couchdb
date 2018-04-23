@@ -66,10 +66,6 @@ public class CouchDbCustomImplementation {
 		return service;
 	}
 
-	/*public static void bind(CouchDbService connection, String database,
-			String username, String password) throws Exception {
-            bindRoleToDatabaseWithPassword(connection, database, username, password, new ArrayList<>());
-	}*/
 	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database,
 					 String username, String password, boolean isAdmin, ArrayList<Object> adminClient) throws Exception {
 		/*

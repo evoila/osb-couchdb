@@ -65,7 +65,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		CouchDbService clientToDatabase = connection(serviceInstance, plan);
 		admin_client.add(clientToDatabase.getCouchDbClient());
 		admin_client.add(existingEndpointBean.getPassword());
-		try { // check arrayList
+		try {
 			CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(couchDbService,
 					database, username, password,true, admin_client);
 		} catch(java.lang.Exception ex) {
