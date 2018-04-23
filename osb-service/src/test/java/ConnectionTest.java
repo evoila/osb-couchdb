@@ -52,15 +52,8 @@ public class ConnectionTest {
         Plan p = new Plan();
         conn.connection(username, password, database, hosts);
 
-        //conn.connection(hosts, port, database, username, password);
-        //List<ServerAddress> sa = new ArrayList<>();
-        //sa.add(bean.getHosts().get(0));
-        //conn.connection(bean.getUsername(), bean.getPassword(), bean.getDatabase(), sa);
-
-
         assertNotNull(conn.getService());
         assertTrue(conn.getService().isConnected());
-    //    assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+hosts.get(0)+":"+port+"/"+couchService.getDatabase()+"/");
         assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+bean.getHosts().get(0).getIp()+":"+port+"/"+bean.getDatabase()+"/");
     }
 }
