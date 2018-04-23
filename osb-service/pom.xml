@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>cf-service-broker-couchdb</artifactId>
     <packaging>jar</packaging>
-    <name>cf-service-broker-couchdb</name>
+    <name>ssb-couchdb</name>
     <version>1.2.0</version>
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>de.evoila.cf.broker</groupId>
@@ -30,14 +30,25 @@
         </dependency>
         <dependency>
             <groupId>de.evoila.cf.broker</groupId>
-            <artifactId>existing-service</artifactId>
-            <version>${deployment.version}</version>
+            <artifactId>core</artifactId>
+            <version>${core.version}</version>
         </dependency>
         <dependency>
             <groupId>de.evoila.cf.broker</groupId>
             <artifactId>persistence-mongodb</artifactId>
             <version>${persistence.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.evoila.cf.broker</groupId>
+            <artifactId>existing-service</artifactId>
+            <version>${deployment.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.evoila.cf.broker</groupId>
+            <artifactId>bosh</artifactId>
+            <version>${deployment.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
