@@ -229,25 +229,9 @@ public class ClusterTest {
         assertFalse(usr_db.contains("org.couchdb.user:"+userTest));
 
     }
-    /*
-    @Test
-    public void testF_check_unbinding_service() throws Exception {
-        plan.setPlatform(Platform.EXISTING_SERVICE);
-        plan.setId("1234-5678");
-        CouchDbService dbs = conn.connection(bean.getUsername(), bean.getPassword(), DB+serviceInstance.getId(), bean.getHosts());
-        bindingService.deleteServiceInstanceBinding("userTest", serviceInstance.getId());
-        JsonObject security = dbs.getCouchDbClient().find(JsonObject.class, "_security");
-        String sec_doc = "{\"admins\":{\"names\":[\""+serviceInstance.getUsername()+"db-instance_binding\"],\"roles\":[\"db-instance_binding_admin\"]},\"members\":{\"names\":[],\"roles\":[]}}";
-        assertEquals(sec_doc, security.toString());
-
-        CouchDbClient dbc = conn.connection(bean.getUsername(), bean.getPassword(), bean.getDatabase(), bean.getHosts()).getCouchDbClient();
-
-        assertFalse(dbc.contains("org.couchdb.user:userTest"));
-
-    }*/
 
     @Test
-    public void testG_bindingInstanceOnCluster() throws Exception {
+    public void testF_bindingInstanceOnCluster() throws Exception {
         CouchDbService service1 = conn.connection(bean.getUsername(), bean.getPassword(), bean.getDatabase(), bean.getHosts());
         ServiceInstance si = new ServiceInstance("new-db", "sample-local", "1234-5678", "d", "d", new HashMap<>(), "d");
         plan.setPlatform(Platform.EXISTING_SERVICE);
@@ -281,7 +265,7 @@ public class ClusterTest {
     }
 
     @Test
-    public void testH_deleting_instances () throws Exception {
+    public void testG_deleting_instances () throws Exception {
         plan.setPlatform(Platform.EXISTING_SERVICE);
         String binding_id ="binding_id";
         ServiceInstanceBinding n = bindingRepository.findOne(binding_id);

@@ -53,10 +53,6 @@ public class CouchDbBindingService extends BindingServiceImpl {
         String username = usernameRandomString.nextString();
         String password = passwordRandomString.nextString();
 
-
-        //SecureRandom pw = new SecureRandom();
-        //String username = bindingId;
-        //String password = new BigInteger(130, pw).toString(32);
         String database = DB+serviceInstance.getId();
 
         CouchDbService admin_to_db = connection(serviceInstance, plan);
@@ -90,7 +86,6 @@ public class CouchDbBindingService extends BindingServiceImpl {
 	public void deleteBinding(ServiceInstanceBinding serviceInstanceBinding, ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
 
 		log.info("Unbinding the CouchDB Service...");
-//        String bindingId = serviceInstanceBinding.getId();
         String bindingId = (String)serviceInstanceBinding.getCredentials().get("username");
 		CouchDbService service = connection(plan);
 
