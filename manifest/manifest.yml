@@ -5,6 +5,18 @@ releases:
   version: latest
 - name: routing
   version: latest
+- sha1: 229ecd46793b9c672bae6e9f0a1d2ff75e7167ed
+  url: https://s3.eu-central-1.amazonaws.com/couchdb-boshrelease-pipeline-ev/osb-couchdb-0.0.1.tgz
+  name: osb-couchdb
+  version: 0.0.1
+- sha1: 5c308231bf7984667752aa322436a32d81d621bb
+  url: https://s3.eu-central-1.amazonaws.com/haproxy-boshrelease-pipeline-ev/osb-haproxy-1.0.4.tgz
+  name: osb-haproxy
+  version: 1.0.4
+- sha1: 84ca7f5e3452c2f1b090d041c746a06d09cc11cf
+  url: https://s3.eu-central-1.amazonaws.com/monitoring-boshrelease-pipeline-ev/osb-monitoring-0.0.2.tgz
+  name: osb-monitoring
+  version: 0.0.2
 update:
   canaries: 1
   canary_watch_time: 15000-30000
