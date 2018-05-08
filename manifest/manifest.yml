@@ -13,10 +13,10 @@ releases:
   url: https://s3.eu-central-1.amazonaws.com/monitoring-boshrelease-pipeline-ev/osb-monitoring-0.0.3.tgz
   name: osb-monitoring
   version: 0.0.3
-- sha1: 6797828638e08fe1fdc59feab5819317f4235c3a
-  url: https://s3.eu-central-1.amazonaws.com/couchdb-boshrelease-pipeline-ev/osb-couchdb-1.0.5.tgz
-  name: osb-couchdb
-  version: 1.0.5
+- sha1: 18bf4eb86fefa5f847e1a67eaf62d20f649fec16
+  url: https://s3.eu-central-1.amazonaws.com/couchdb-boshrelease-pipeline-ev/osb-bosh-couchdb-1.0.6.tgz
+  name: osb-bosh-couchdb
+  version: 1.0.6
 update:
   canaries: 1
   canary_watch_time: 15000-30000
