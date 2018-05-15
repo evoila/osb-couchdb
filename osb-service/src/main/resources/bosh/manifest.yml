@@ -1,0 +1,35 @@
+---
+name: osb-couchdb
+
+releases:
+- name: osb-couchdb
+  version: latest
+- name: osb-monitoring
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 15000-30000
+  update_watch_time: 15000-30000
+  max_in_flight: 3
+
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: latest
+
+instance_groups:
+- name: couchdb3
+  instances: 3
+  vm_type: default
+  stemcell: default
+  persistent_disk_type: large
+  jobs:
+  - name: couchdb2
+    release: osb-couchdb
+  - name: node_exporter
+    release: osb-monitoring
+  - name: couchdb_exporter
+    release: osb-monitoring
+  networks:
+  - name: default

@@ -101,7 +101,7 @@ public class ClusterTest {
         plan.setPlatform(Platform.EXISTING_SERVICE);
         plan.setId("1234-5678");
 
-        couchService.createInstance(serviceInstance, plan, new HashMap<String, String>());
+        couchService.createInstance(serviceInstance, plan, new HashMap<String, Object>());
 
         assertTrue(service1.getCouchDbClient().context().getAllDbs().contains(DB+database)); // db is on first node
 
@@ -128,7 +128,7 @@ public class ClusterTest {
 
         plan.setPlatform(Platform.EXISTING_SERVICE);
         plan.setId("1234-5678");
-        service.createInstance(serviceInstance, plan, new HashMap<String, String>());
+        service.createInstance(serviceInstance, plan, new HashMap<String, Object>());
 
         /* testing on all existing services */
 

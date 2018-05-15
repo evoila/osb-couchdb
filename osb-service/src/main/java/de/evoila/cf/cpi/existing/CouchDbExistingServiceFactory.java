@@ -42,7 +42,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
     private ExistingEndpointBeanImpl existingEndpointBean;
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customParameters) throws PlatformException {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, Object> customParameters) throws PlatformException {
 		String username = usernameRandomString.nextString();
 		String password = passwordRandomString.nextString();
 

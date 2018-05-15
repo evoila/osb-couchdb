@@ -106,7 +106,7 @@ public class CouchDbBindingTest {
         Plan p = new Plan();
         p.setId("1234-5678");
         p.setPlatform(Platform.EXISTING_SERVICE);
-        service.createInstance(serviceInstance, p, new HashMap<String, String>());
+        service.createInstance(serviceInstance, p, new HashMap<String, Object>());
 
         CouchDbClient cl = conn.connection(bean.getUsername(), bean.getPassword(),
                                                             serviceInstance.getId(), bean.getHosts()
