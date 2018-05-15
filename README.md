@@ -13,7 +13,11 @@ Concrete Service logic and binding logic has to be added.
 2. Build it. `mvn clean install`
 3. Provide a valid configuration. 
 4. Run it or push it to Cloud Foundry.
+<<<<<<< HEAD
 
+=======
+5. Profit
+>>>>>>> 9159447ac41953c07cf7307bf939232fff702375
 ##### Example Configuratuion
 
 

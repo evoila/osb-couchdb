@@ -17,8 +17,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
-import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
-
 /**
  * @author Johannes Hiemer.
  * Deploying to Space for testing purposes is as follows:

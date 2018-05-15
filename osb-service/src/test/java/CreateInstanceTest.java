@@ -93,7 +93,7 @@ public class CreateInstanceTest {
         plan = new Plan();
         plan.setId("1234-5678");
         plan.setPlatform(Platform.EXISTING_SERVICE);
-        service.createInstance(serviceInstance, plan, new HashMap<String, String>());
+        service.createInstance(serviceInstance, plan, new HashMap<String, Object>());
 
         CouchDbClient cl = conn.connection(bean.getUsername(), bean.getPassword(), bean.getDatabase(), bean.getHosts()).getCouchDbClient();
         String id = serviceInstance.getUsername();

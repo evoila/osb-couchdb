@@ -18,4 +18,5 @@ ca.pem
 *.log
 */bin
 service-broker-template.log
-osb-service/src/main/resources/static/stats.json
+osb-service/src/main/resources/static
+osb-service/src/main/resources/templates
