@@ -26,4 +26,5 @@ ca.pem
 *.pid
 *logging.file_IS_UNDEFINED
 *.springWebflow
-osb-service/src/main/resources
+osb-service/src/main/resources/static
+osb-service/src/main/resources/templates
