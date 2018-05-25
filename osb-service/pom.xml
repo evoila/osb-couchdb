@@ -4,7 +4,7 @@
 
     <artifactId>osb-couchdb</artifactId>
     <packaging>jar</packaging>
-    <name>ssb-couchdb</name>
+    <name>osb-couchdb</name>
     <version>1.2.0</version>
     <modelVersion>4.0.0</modelVersion>
 
