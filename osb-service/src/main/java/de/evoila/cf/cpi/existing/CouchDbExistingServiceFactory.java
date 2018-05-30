@@ -5,13 +5,12 @@ package de.evoila.cf.cpi.existing;
 
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
-import de.evoila.cf.broker.exception.PlatformException;
-import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.Platform;
-import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.util.RandomString;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
+import de.evoila.cf.broker.exception.PlatformException;
+import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.util.RandomString;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 	RandomString passwordRandomString = new RandomString(15);
 
 	@Autowired
-	private CouchDbCustomImplementation couchService;
+	private CouchDbCustomImplementation couchDbCustomImplementation;
 
     @Autowired
     private ExistingEndpointBeanImpl existingEndpointBean;
@@ -49,20 +48,19 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		serviceInstance.setUsername(username);
 		serviceInstance.setPassword(password);
 
-		CouchDbService couchDbService = connection(plan);
+		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan);
 		String database = serviceInstance.getId();
 
 		log.info("Creating the CouchDB Service...");
 		database = DB + database;
 		try {
-
 			CouchDbClient client = couchDbService.getCouchDbClient();
 			client.context().createDB(database);
-		}catch (CouchDbException e){
-			throw new PlatformException("Could not create to the database", e);
+		} catch (CouchDbException e) {
+			throw new PlatformException("Could not connect to the database", e);
 		}
 		ArrayList<Object> admin_client = new ArrayList<>();
-		CouchDbService clientToDatabase = connection(serviceInstance, plan);
+		CouchDbService clientToDatabase = couchDbCustomImplementation.connection(serviceInstance, plan);
 		admin_client.add(clientToDatabase.getCouchDbClient());
 		admin_client.add(existingEndpointBean.getPassword());
 		try {
@@ -79,7 +77,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 	public void deleteInstance(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 		log.info("Deleting the CouchDB Service...");
 		String database = serviceInstance.getId();
-		CouchDbService couchDbService = connection(plan);
+		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan);
 
 		database = DB + database;
 		try{
@@ -91,20 +89,4 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		}
 	}
 
-	private CouchDbService connection(Plan plan) {
-		CouchDbService couchDbService = new CouchDbService();
-
-		if (plan.getPlatform() == Platform.EXISTING_SERVICE)
-			couchDbService.createConnection(existingEndpointBean.getHosts().get(0).getIp() , existingEndpointBean.getPort(), existingEndpointBean.getDatabase(),
-					existingEndpointBean.getUsername(), existingEndpointBean.getPassword());
-		return couchDbService;
-	}
-	private CouchDbService connection(ServiceInstance serviceInstance, Plan plan) {
-		CouchDbService couchDbService = new CouchDbService();
-
-		if (plan.getPlatform() == Platform.EXISTING_SERVICE)
-			couchDbService.createConnection(existingEndpointBean.getHosts().get(0).getIp() , existingEndpointBean.getPort(), DB+serviceInstance.getId(),
-					existingEndpointBean.getUsername(), existingEndpointBean.getPassword());
-		return couchDbService;
-	}
 }

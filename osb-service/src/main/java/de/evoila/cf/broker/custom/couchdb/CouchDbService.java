@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.broker.custom.couchdb;
 
+import de.evoila.cf.broker.model.ServerAddress;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
@@ -23,17 +24,22 @@ import java.util.List;
 public class CouchDbService {
 
 	private boolean initialized;
+
 	private CouchDbProperties config;
+
+    private ServerAddress serverAddress;
 
 	private CouchDbClient couchDbClient;
 
-	public void createConnection(String host, int port, String database, String  username, String  password) {
+	public void createConnection(String username, String password, String database, List<ServerAddress> serverAddresses) {
+        this.serverAddress = serverAddresses.get(0);
+
        	config = new CouchDbProperties();
         config.setDbName(database);
         config.setCreateDbIfNotExist(true);
         config.setProtocol("http");
-        config.setHost(host);
-        config.setPort(port);
+        config.setHost(serverAddress.getIp());
+        config.setPort(serverAddress.getPort());
         config.setUsername(username);
         config.setPassword(password);
 
@@ -64,6 +70,5 @@ public class CouchDbService {
 	public CouchDbProperties getConfig() {
 		return config;
 	}
-
 
 }

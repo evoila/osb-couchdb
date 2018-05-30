@@ -10,7 +10,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServerAddress;
+import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.util.ServiceInstanceUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -44,26 +48,31 @@ public class CouchDbCustomImplementation {
 
     private static final String PREFIX_ID = "org.couchdb.user:";
 
-	private CouchDbService service;
+	private CouchDbService couchDbService;
 
 	private static final Logger log = LoggerFactory.getLogger(CouchDbCustomImplementation.class);
 
 	@Autowired
-	private ExistingEndpointBeanImpl endpointBean;
+	private ExistingEndpointBeanImpl existingEndpointBean;
 
-	public CouchDbService connection(String username, String password, String database, List<ServerAddress> hosts) throws Exception {
-		ServerAddress serverAddress = hosts.get(0);
+	public CouchDbService connection(ServiceInstance serviceInstance, Plan plan) {
+	    couchDbService = new CouchDbService();
 
+	    if(plan.getPlatform() == Platform.BOSH) {
+            List<ServerAddress> serverAddresses = serviceInstance.getHosts();
 
-		service = new CouchDbService();
+            if (plan.getMetadata().getIngressInstanceGroup() != null &&
+                    plan.getMetadata().getIngressInstanceGroup().length() > 0)
+                serverAddresses = ServiceInstanceUtils.filteredServerAddress(serviceInstance.getHosts(),
+                        plan.getMetadata().getIngressInstanceGroup());
 
-		try{
-            service.createConnection(serverAddress.getIp(), endpointBean.getPort(), database, username, password);
-        }catch(CouchDbException e ){
-            throw new ServiceBrokerException("Could not establish connection", e);
-        }
+            couchDbService.createConnection(serviceInstance.getUsername(),
+                    serviceInstance.getPassword(), "", serverAddresses);
+        } else if (plan.getPlatform() == Platform.EXISTING_SERVICE)
+            couchDbService.createConnection(existingEndpointBean.getUsername(),
+                    existingEndpointBean.getPassword(), existingEndpointBean.getDatabase(), existingEndpointBean.getHosts());
 
-		return service;
+        return couchDbService;
 	}
 
 	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database,
@@ -75,7 +84,7 @@ public class CouchDbCustomImplementation {
 		String role = null;
 		if (isAdmin){
 			role = database + "_admin";
-		}else{
+		} else {
 			role = database + "_member";
 		}
 
@@ -185,7 +194,7 @@ public class CouchDbCustomImplementation {
 	}
 
 	/* give access to the database "database" as server admin */
-	private ArrayList<Object> createAdminClient (String database) throws Exception {
+	private ArrayList<Object> createAdminClient(String database) throws Exception {
 
 		CouchDbService client = new CouchDbService();
 		client.createConnection(
@@ -203,6 +212,6 @@ public class CouchDbCustomImplementation {
 	}
 
     public CouchDbService getService() {
-		return service;
+		return couchDbService;
 	}
 }

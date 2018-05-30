@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
 import de.evoila.cf.broker.model.*;
 import de.evoila.cf.broker.util.RandomString;
 import org.slf4j.Logger;
@@ -39,8 +38,8 @@ public class CouchDbBindingService extends BindingServiceImpl {
     RandomString usernameRandomString = new RandomString(10);
     RandomString passwordRandomString = new RandomString(15);
 
-	@Autowired
-	private ExistingEndpointBeanImpl endpointBean;
+    @Autowired
+    private CouchDbCustomImplementation couchDbCustomImplementation;
 
 	@Override
 	protected Map<String, Object> createCredentials(String bindingId, ServiceInstanceBindingRequest serviceInstanceBindingRequest, ServiceInstance serviceInstance,
@@ -48,22 +47,22 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
 		log.info("Binding the CouchDB Service...");
 
-        CouchDbService service = connection(plan);
+        CouchDbService service = couchDbCustomImplementation.connection(serviceInstance, plan);
 
         String username = usernameRandomString.nextString();
         String password = passwordRandomString.nextString();
 
         String database = DB+serviceInstance.getId();
 
-        CouchDbService admin_to_db = connection(serviceInstance, plan);
+        CouchDbService admin_to_db = couchDbCustomImplementation.connection(serviceInstance, plan);
 
-        ArrayList<Object > adminPass = new ArrayList<Object>(){{
+        ArrayList<Object> adminPass = new ArrayList<Object>(){{
             add(admin_to_db.getCouchDbClient());
             add(endpointBean.getPassword());
         }};
         try {
             CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, false, adminPass);
-        }catch(Exception e){
+        } catch(Exception e) {
             throw new ServiceBrokerException("Error while binding role", e);
         }
 
@@ -87,12 +86,12 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
 		log.info("Unbinding the CouchDB Service...");
         String bindingId = (String)serviceInstanceBinding.getCredentials().get("username");
-		CouchDbService service = connection(plan);
+		CouchDbService service = couchDbCustomImplementation.connection(serviceInstance, plan);
 
 		JsonObject toRemove = service.getCouchDbClient().find(JsonObject.class, "org.couchdb.user:"+bindingId);
 		service.getCouchDbClient().remove(toRemove);
         String db = DB+serviceInstance.getId();
-		service = connection(serviceInstance, plan);
+		service = couchDbCustomImplementation.connection(serviceInstance, plan);
         JsonObject security_doc = service.getCouchDbClient().find(JsonObject.class, "_security");
         SecurityDocument sd = new Gson().fromJson(security_doc, SecurityDocument.class);
         sd.getAdmins().deleteName(bindingId);
@@ -126,24 +125,6 @@ public class CouchDbBindingService extends BindingServiceImpl {
 	
     public String nextSessionId() {
         return new BigInteger(130, random).toString(32);
-    }
-
-    private CouchDbService connection(Plan plan) {
-        CouchDbService couchDbService = new CouchDbService();
-
-        if (plan.getPlatform() == Platform.EXISTING_SERVICE)
-            couchDbService.createConnection(endpointBean.getHosts().get(0).getIp(), endpointBean.getPort(), endpointBean.getDatabase(),
-                    endpointBean.getUsername(), endpointBean.getPassword());
-        return couchDbService;
-    }
-
-    private CouchDbService connection(ServiceInstance serviceInstance, Plan plan) {
-        CouchDbService couchDbService = new CouchDbService();
-
-        if (plan.getPlatform() == Platform.EXISTING_SERVICE)
-            couchDbService.createConnection(endpointBean.getHosts().get(0).getIp(), endpointBean.getPort(), DB+serviceInstance.getId(),
-                    serviceInstance.getUsername(), serviceInstance.getPassword());
-        return couchDbService;
     }
 
 }
