@@ -1,12 +1,17 @@
 spring:
-  ### Profile ###
-  profiles: singlenode
+  profiles: localtesting
 
-### Deployment ###
-#### Existing CouchDB Server/Cluster ####
+login:
+  password: cloudfoundry
+  role: USER
+  username: admin
+
 existing:
   endpoint:
+    database: _users
     hosts:
-      - ip: localhost
-        name: couchdb
-        port: 5984
+    - ip: localhost
+      name: couchdb
+      port: 5984
+    password: admin
+    username: admin

@@ -108,17 +108,14 @@ public class CouchDbBindingTest {
         p.setPlatform(Platform.EXISTING_SERVICE);
         service.createInstance(serviceInstance, p, new HashMap<String, Object>());
 
-        CouchDbClient cl = conn.connection(bean.getUsername(), bean.getPassword(),
-                                                            serviceInstance.getId(), bean.getHosts()
-                            ).getCouchDbClient();
+        CouchDbClient cl = conn.connection(serviceInstance, p, true, null).getCouchDbClient();
 
         JsonObject j=cl.find(JsonObject.class, "_security");
         assertNotNull(j);
 
         cl.context().deleteDB(serviceInstance.getId(), "delete database");
 
-        CouchDbClient cl1 = conn.connection(bean.getUsername(), bean.getPassword(),
-                bean.getDatabase(), bean.getHosts()).getCouchDbClient();
+        CouchDbClient cl1 = conn.connection(serviceInstance, p, true, null).getCouchDbClient();
         JsonObject j1=cl1.find(JsonObject.class, "org.couchdb.user:"+serviceInstance.getUsername());
         cl1.remove(j1);
     }

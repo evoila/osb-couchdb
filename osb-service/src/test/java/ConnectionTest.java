@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
 @ContextConfiguration(classes = Application.class, loader = AnnotationConfigContextLoader.class, initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles(profiles={"default", "singlenode"})
+@ActiveProfiles(profiles={"singlenode"})
 public class ConnectionTest {
 
     @Autowired
@@ -37,23 +37,22 @@ public class ConnectionTest {
     @Autowired
     private ExistingEndpointBean bean;
 
-    private ServiceInstance serviceInstance = new ServiceInstance("instance_binding", "service_def", "s", "d", "d", new HashMap<>(), "d");
+    private ServiceInstance serviceInstance = new ServiceInstance("instance_binding", "9372FCCA-EC21-4EC5-B86B-B51E5D75DBET", "C433FC45-6404-433D-A5A5-F826817CF5BT", "d", "d", new HashMap<>(), "d");
 
     @Test
     public void testConnection () throws Exception {
 
-        int port = bean.getPort();
         List<ServerAddress> hosts = bean.getHosts();
         String database = bean.getDatabase();
         String username = bean.getUsername();
         String password = bean.getPassword();
 
 
-        Plan p = new Plan();
-        conn.connection(username, password, database, hosts);
+        Plan p = new Plan("433FC45-6404-433D-A5A5-F826817CF5BA", "name", "description", Platform.EXISTING_SERVICE, 10, VolumeUnit.G, "gp1.small", false, 40);
+        conn.connection(serviceInstance, p, true, null);
 
         assertNotNull(conn.getService());
         assertTrue(conn.getService().isConnected());
-        assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+bean.getHosts().get(0).getIp()+":"+port+"/"+bean.getDatabase()+"/");
+        assertEquals(conn.getService().getCouchDbClient().getDBUri().toString(), "http://"+bean.getHosts().get(0).getIp()+":"+bean.getHosts().get(0).getPort()+"/"+bean.getDatabase()+"/");
     }
 }

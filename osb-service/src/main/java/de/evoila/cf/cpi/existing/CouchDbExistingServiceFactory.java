@@ -9,6 +9,7 @@ import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.util.RandomString;
 import org.lightcouch.CouchDbClient;
@@ -48,7 +49,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		serviceInstance.setUsername(username);
 		serviceInstance.setPassword(password);
 
-		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan);
+		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan, true, null);
 		String database = serviceInstance.getId();
 
 		log.info("Creating the CouchDB Service...");
@@ -59,17 +60,19 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		} catch (CouchDbException e) {
 			throw new PlatformException("Could not connect to the database", e);
 		}
-		ArrayList<Object> admin_client = new ArrayList<>();
-		CouchDbService clientToDatabase = couchDbCustomImplementation.connection(serviceInstance, plan);
-		admin_client.add(clientToDatabase.getCouchDbClient());
-		admin_client.add(existingEndpointBean.getPassword());
 		try {
-			CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(couchDbService,
-					database, username, password,true, admin_client);
+			couchDbCustomImplementation.bindRoleToInstanceWithPassword(couchDbService, database, serviceInstance.getUsername(), serviceInstance.getPassword(), plan);
 		} catch(java.lang.Exception ex) {
 			throw new PlatformException(ex);
 		}
 
+		couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan, true, database);
+		try{
+            couchDbCustomImplementation.bindRole(couchDbService, database, serviceInstance.getUsername(),
+                    existingEndpointBean.getPassword(), plan);
+        }catch(java.lang.Exception e){
+		    throw new PlatformException("Could not make give admin rights to the user after creating instance");
+        }
 		return serviceInstance;
 	}
 
@@ -77,7 +80,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 	public void deleteInstance(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 		log.info("Deleting the CouchDB Service...");
 		String database = serviceInstance.getId();
-		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan);
+		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan, true, null);
 
 		database = DB + database;
 		try{

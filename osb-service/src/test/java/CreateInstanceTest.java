@@ -3,7 +3,7 @@ import de.evoila.Application;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.model.*;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
-import de.evoila.cf.broker.service.DeploymentServiceImpl;
+import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
@@ -46,8 +46,7 @@ import static junit.framework.TestCase.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
 @ContextConfiguration(classes = Application.class, loader = AnnotationConfigContextLoader.class, initializers = ConfigFileApplicationContextInitializer.class)
-//@ActiveProfiles(profiles={"default", "singlenode"})
-@ActiveProfiles("default")
+@ActiveProfiles("singlenode")
 public class CreateInstanceTest {
 
     @Autowired
@@ -81,8 +80,10 @@ public class CreateInstanceTest {
             bindRole to the database
      */
 
+    private static final String SERVICE_ID="9372FCCA-EC21-4EC5-B86B-B51E5D75DBE";
+    private static final String PLAN_ID="C433FC45-6404-433D-A5A5-F826817CF5BA";
 
-    private ServiceInstance serviceInstance = new ServiceInstance("instance_binding", "service_def", "s", "d", "d", new HashMap<>(), "d");
+    private ServiceInstance serviceInstance = new ServiceInstance("instance_binding", SERVICE_ID, PLAN_ID, "d", "d", new HashMap<>(), "d");
 
     private Plan plan;
 
@@ -91,16 +92,16 @@ public class CreateInstanceTest {
     public void testCreateInstanceFromServiceInstance () throws Exception {
 
         plan = new Plan();
-        plan.setId("1234-5678");
+        plan.setId(PLAN_ID);
         plan.setPlatform(Platform.EXISTING_SERVICE);
         service.createInstance(serviceInstance, plan, new HashMap<String, Object>());
 
-        CouchDbClient cl = conn.connection(bean.getUsername(), bean.getPassword(), bean.getDatabase(), bean.getHosts()).getCouchDbClient();
+        CouchDbClient cl = conn.connection(serviceInstance, plan, true, null).getCouchDbClient();
         String id = serviceInstance.getUsername();
 
         assertNotNull(cl.find(JsonObject.class, "org.couchdb.user:"+id));
 
-        String uri = "http://"+bean.getUsername()+":"+bean.getPassword()+"@"+bean.getHosts().get(0).getIp()+":"+bean.getPort()+"/"+"db-"+serviceInstance.getId();
+        String uri = "http://"+bean.getUsername()+":"+bean.getPassword()+"@"+bean.getHosts().get(0).getIp()+":"+bean.getHosts().get(0).getPort()+"/"+"db-"+serviceInstance.getId();
 
         HttpResponse response = performGet(uri);
 
@@ -130,9 +131,9 @@ public class CreateInstanceTest {
         assertNotNull(repository.getServiceInstance(serviceInstance.getId()));
 
 
-        ServiceInstanceBindingRequest request = new ServiceInstanceBindingRequest("sample-local", plan.getId());
+        ServiceInstanceBindingRequest request = new ServiceInstanceBindingRequest(SERVICE_ID, plan.getId());
         ServiceInstanceBindingResponse serviceInstanceBinding = bindingService.createServiceInstanceBinding("binding_id", serviceInstance.getId(),
-                request,null);
+                request);
         assertNotNull(cl.find(JsonObject.class, "org.couchdb.user:"+serviceInstanceBinding.getCredentials().get("username")));
 
 
