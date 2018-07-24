@@ -69,9 +69,9 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan, true, database);
 		try{
             couchDbCustomImplementation.bindRole(couchDbService, database, serviceInstance.getUsername(),
-                    existingEndpointBean.getPassword(), plan);
+                    existingEndpointBean.getPassword());
         }catch(java.lang.Exception e){
-		    throw new PlatformException("Could not make give admin rights to the user after creating instance");
+		    throw new PlatformException("Could not give admin rights to the user after creating instance");
         }
 		return serviceInstance;
 	}

@@ -1,13 +1,11 @@
 /**
- * 
+ *
  */
 package de.evoila.cf.broker.custom.couchdb;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -17,6 +15,7 @@ import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.*;
 import de.evoila.cf.broker.persistence.repository.ServiceDefinitionRepositoryImpl;
 import de.evoila.cf.broker.util.RandomString;
+import de.evoila.cf.broker.util.ServiceInstanceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,12 @@ import static de.evoila.cf.broker.model.Platform.BOSH;
 @Service
 public class CouchDbBindingService extends BindingServiceImpl {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+    private static String URI = "uri";
+    private static String USERNAME = "user";
+    private static String DATABASE = "database";
+    private static String NAME = "name";
+
+    private Logger log = LoggerFactory.getLogger(getClass());
 
 	private SecureRandom random = new SecureRandom();
 
@@ -53,41 +57,34 @@ public class CouchDbBindingService extends BindingServiceImpl {
     @Autowired
     private CouchDbCustomImplementation couchDbCustomImplementation;
 
-	@Override
-	protected Map<String, Object> createCredentials(String bindingId, ServiceInstanceBindingRequest serviceInstanceBindingRequest, ServiceInstance serviceInstance,
-			                                        Plan plan, ServerAddress host) throws ServiceBrokerException, InvalidParametersException {
+    @Override
+    protected Map<String, Object> createCredentials(String bindingId, ServiceInstanceBindingRequest serviceInstanceBindingRequest, ServiceInstance serviceInstance,
+                                                    Plan plan, ServerAddress host) throws ServiceBrokerException, InvalidParametersException {
 
-		log.info("Binding the CouchDB Service...");
+        log.info("Binding the CouchDB Service...");
 
-        Map<String, Object> credentials = new HashMap<>();
         CouchDbService service = couchDbCustomImplementation.connection(serviceInstance, plan, true, null);
         String username = usernameRandomString.nextString();
         String password = passwordRandomString.nextString();
 
+        String database = null;
+
         if (plan.getPlatform() == Platform.EXISTING_SERVICE) {
-            String database = DB + serviceInstance.getId();
+            database = DB + serviceInstance.getId();
             try {
                 couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
             } catch (Exception e) {
                 throw new ServiceBrokerException("Error while creating binding user", e);
             }
             CouchDbService service2 = couchDbCustomImplementation.connection(serviceInstance, plan, false, database);
-            try{
-                couchDbCustomImplementation.bindRole(service2, database, username, serviceInstance.getPassword(), plan);
-            }catch(Exception e){
+            try {
+                couchDbCustomImplementation.bindRole(service2, database, username, serviceInstance.getPassword());
+            } catch (Exception e) {
                 throw new ServiceBrokerException("Error while binding role to the database", e);
             }
-
-            credentials = new HashMap<>();
-
-            credentials.put("username", username);
-            credentials.put("password", password);
-            credentials.put("database", database);
-
-        }else if (plan.getPlatform() == BOSH){
-            String database = null;
-            HashMap<String, Object> parameters = (HashMap<String, Object>)serviceInstanceBindingRequest.getParameters();
-            if (parameters == null || parameters.size() <= 0){
+        } else if (plan.getPlatform() == Platform.BOSH) {
+            HashMap<String, Object> parameters = (HashMap<String, Object>) serviceInstanceBindingRequest.getParameters();
+            if (parameters == null || parameters.size() <= 0) {
                 database = "default";
                 try {
                     couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
@@ -95,14 +92,15 @@ public class CouchDbBindingService extends BindingServiceImpl {
                     throw new ServiceBrokerException("Error while creating binding user", e);
                 }
                 CouchDbService service2 = couchDbCustomImplementation.connection(serviceInstance, plan, true, database);
-                try{
-                    couchDbCustomImplementation.bindRole(service2, database, username, serviceInstance.getPassword(), plan);
-                }catch(Exception e){
+                try {
+                    couchDbCustomImplementation.bindRole(service2, database, username, serviceInstance.getPassword());
+                } catch (Exception e) {
                     throw new ServiceBrokerException("Error while binding role to the database", e);
                 }
 
-            }else{
-                database = (String)parameters.get("database");
+            } else {
+                database = (String) parameters.get("database");
+                // here should check if the database exists, and throw an Exception if it doesn't
                 try {
                     couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
                 } catch (Exception e) {
@@ -110,23 +108,42 @@ public class CouchDbBindingService extends BindingServiceImpl {
                 }
                 CouchDbService service2 = couchDbCustomImplementation.connection(serviceInstance, plan, true, database);
                 try {
-                    couchDbCustomImplementation.bindRole(service2, database, username, serviceInstance.getPassword(), plan);
+                    couchDbCustomImplementation.bindRole(service2, database, username, serviceInstance.getPassword());
                 } catch (Exception e) {
                     throw new ServiceBrokerException("Error while creating binding user", e);
                 }
             }
-            credentials = new HashMap<>();
-
-            credentials.put("username", username);
-            credentials.put("password", password);
-            credentials.put("database", database);
         }
 
+        List<ServerAddress> serverAddresses = null;
+        if (plan.getPlatform() == Platform.BOSH && plan.getMetadata() != null) {
+            if (plan.getMetadata().getIngressInstanceGroup() != null && host == null)
+                serverAddresses = ServiceInstanceUtils.filteredServerAddress(serviceInstance.getHosts(),
+                        plan.getMetadata().getIngressInstanceGroup());
+            else if (plan.getMetadata().getIngressInstanceGroup() == null)
+                serverAddresses = serviceInstance.getHosts();
+        } else if (plan.getPlatform() == Platform.EXISTING_SERVICE && existingEndpointBean != null) {
+            serverAddresses = existingEndpointBean.getHosts();
+        } else if (host != null)
+            serverAddresses = Arrays.asList(new ServerAddress("service-key-haproxy", host.getIp(), host.getPort()));
+        if (serverAddresses == null || serverAddresses.size() == 0)
+            throw new ServiceBrokerException("Could not find any Service Backends to create Service Binding");
+        String endpoint = ServiceInstanceUtils.connectionUrl(serverAddresses);
+        // This needs to be done here and can't be generalized due to the fact that each backend
+        // may have a different URL setup
+        Map<String, Object> configurations = new HashMap<>();
+        configurations.put(URI, String.format("couchdb://%s:%s@%s/%s", username, password, endpoint, database));
+        configurations.put(DATABASE, database);
+        configurations.put(NAME, database);
+        Map<String, Object> credentials = ServiceInstanceUtils.bindingObject(serviceInstance.getHosts(),
+                username,
+                password,
+                configurations);
         return credentials;
     }
 
 	@Override
-	public void deleteBinding(ServiceInstanceBinding serviceInstanceBinding, ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+	public void unbindService(ServiceInstanceBinding serviceInstanceBinding, ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
 
         log.info("Unbinding the CouchDB Service...");
         String bindingId = (String) serviceInstanceBinding.getCredentials().get("username");
@@ -179,7 +196,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindRoute(de.evoila.
 	 * cf.broker.model.ServiceInstance, java.lang.String)
@@ -188,7 +205,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
 	protected RouteBinding bindRoute(ServiceInstance serviceInstance, String route) {
 		throw new UnsupportedOperationException();
 	}
-	
+
     public String nextSessionId() {
         return new BigInteger(130, random).toString(32);
     }

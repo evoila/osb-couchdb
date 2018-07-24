@@ -36,7 +36,7 @@ public class CouchDbService {
 
        	config = new CouchDbProperties();
         config.setDbName(database);
-        config.setCreateDbIfNotExist(true);
+        config.setCreateDbIfNotExist(false);
         config.setProtocol("http");
         config.setHost(serverAddress.getIp());
         config.setPort(serverAddress.getPort());

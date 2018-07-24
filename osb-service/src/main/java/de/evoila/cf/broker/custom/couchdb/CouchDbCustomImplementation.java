@@ -100,8 +100,6 @@ public class CouchDbCustomImplementation {
 	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database, String username, String password, Plan plan) throws Exception {
 		String role = database + "_admin";
 		String id = PREFIX_ID + username;
-		/*creation of the user in the _user database
-		* only server admin can access this database */
 
 		ArrayList<String> user_roles = new ArrayList<>();
 		user_roles.add(role);
@@ -113,36 +111,38 @@ public class CouchDbCustomImplementation {
 
     }
 
-    public void bindRole(CouchDbService connection, String database, String bindingName, String password, Plan plan) throws Exception {
-		/* ** Security document **
-		 * limit access to the database only for the created user
-		 * Need to connect to the database as server admin to make changes to the _security document
-		 * Cannot retrieve admin password from the configuration client (connection.getConfig().getPassword()==null)
-		 * cannot retrieve endpointBean from static-context. Need to have variables from parameters
-		*/
-		String role = database + "_admin";
+    public void bindRole(CouchDbService connection, String database, String bindingName, String password) throws Exception {
+		// always creating a new database admin and member admin, this is the only way to prevent other users accessing the database
+		String adminRole = database + "_admin";
+		String memberRole = database + "_member";
 		JsonObject securityDocument = connection.getCouchDbClient().find(JsonObject.class, "_security");
 		String username = connection.getConfig().getUsername();
 		Gson gson = new Gson();
 		SecurityDocument sec_doc = null;
 
 		if (securityDocument.size() == 0) {
-			/* create document, there are no specific database users
-			   at document creation, only a database admin is created
-			 */
-			ArrayList<String> admin_names = new ArrayList<>();
-			admin_names.add(bindingName);
-			ArrayList<String> admin_roles = new ArrayList<>();
-			admin_roles.add(role);
+			ArrayList<String> adminNames = new ArrayList<>();
+			adminNames.add(bindingName);
+			ArrayList<String> adminRoles = new ArrayList<>();
+			adminRoles.add(adminRole);
 
-			NamesAndRoles adm = new NamesAndRoles(admin_names, admin_roles);
-			sec_doc = new SecurityDocument(adm);
+			ArrayList<String> memberNames = new ArrayList<>();
+			memberNames.add(bindingName);
+			ArrayList<String> memberRoles = new ArrayList<>();
+			memberRoles.add(memberRole);
+
+
+			NamesAndRoles adm = new NamesAndRoles(adminNames, adminRoles);
+			NamesAndRoles mem = new NamesAndRoles(memberNames, memberRoles);
+			sec_doc = new SecurityDocument(adm, mem);
 
 		} else {
-			//update document
 			sec_doc = gson.fromJson(securityDocument, SecurityDocument.class);
 			sec_doc.getAdmins().addName(bindingName);
-			sec_doc.getAdmins().getRoles().add(role);
+			sec_doc.getAdmins().getRoles().add(adminRole);
+			sec_doc.getMembers().addName(bindingName);
+			sec_doc.getMembers().getRoles().add(memberRole);
+
 		}
 
 		JsonObject security = (JsonObject) gson.toJsonTree(sec_doc);
