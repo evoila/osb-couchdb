@@ -37,7 +37,7 @@ instance_groups:
   - name: couchdb_exporter
     release: osb-bosh-monitoring
   networks:
-  - name: default
+  - name: service
   properties:
     auth:
       username:
@@ -50,7 +50,7 @@ instance_groups:
   azs:
   - z1
   networks:
-  - name: default
+  - name: service
   jobs:
   - name: haproxy
     release: osb-bosh-haproxy
