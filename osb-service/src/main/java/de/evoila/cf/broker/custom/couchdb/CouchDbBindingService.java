@@ -35,7 +35,7 @@ import static de.evoila.cf.broker.model.Platform.BOSH;
 public class CouchDbBindingService extends BindingServiceImpl {
 
     private static String URI = "uri";
-    private static String USERNAME = "user";
+    private static String USER = "user";
     private static String DATABASE = "database";
     private static String NAME = "name";
 
@@ -100,6 +100,9 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
             } else {
                 database = (String) parameters.get("database");
+                if (!(service.getCouchDbClient().context().getAllDbs().contains(database))){
+                    throw new InvalidParametersException("The specified database for the binding does not exist");
+                }
                 // here should check if the database exists, and throw an Exception if it doesn't
                 try {
                     couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
@@ -146,7 +149,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
 	public void unbindService(ServiceInstanceBinding serviceInstanceBinding, ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
 
         log.info("Unbinding the CouchDB Service...");
-        String bindingId = (String) serviceInstanceBinding.getCredentials().get("username");
+        String bindingId = (String) serviceInstanceBinding.getCredentials().get(USER);
         CouchDbService service = couchDbCustomImplementation.connection(serviceInstance, plan, true, null);
 
         JsonObject toRemove = service.getCouchDbClient().find(JsonObject.class, "org.couchdb.user:" + bindingId);
