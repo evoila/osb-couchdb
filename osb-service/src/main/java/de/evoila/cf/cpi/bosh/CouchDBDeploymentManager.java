@@ -40,7 +40,9 @@ public class CouchDBDeploymentManager extends DeploymentManager {
         String username = randomStringUsername.nextString();
         String password = randomStringPassword.nextString();
 
-        Map<String, Object> auth = (Map<String, Object>) manifestProperties.get("auth");
+        Map<String, Object> couchdb = (Map<String, Object>) manifestProperties.get("couchdb");
+        Map<String, Object> auth = (Map<String, Object>) couchdb.get("auth");
+
         auth.put("username", username);
         auth.put("password", password);
 
