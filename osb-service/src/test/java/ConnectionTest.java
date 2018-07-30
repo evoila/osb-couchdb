@@ -48,7 +48,7 @@ public class ConnectionTest {
         String password = bean.getPassword();
 
 
-        Plan p = new Plan("433FC45-6404-433D-A5A5-F826817CF5BA", "name", "description", Platform.EXISTING_SERVICE, 10, VolumeUnit.G, "gp1.small", false, 40);
+        Plan p = new Plan("plan-id", "p", "desc", Platform.EXISTING_SERVICE, false);
         conn.connection(serviceInstance, p, true, null);
 
         assertNotNull(conn.getService());
