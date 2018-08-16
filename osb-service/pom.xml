@@ -54,6 +54,13 @@
             <artifactId>spring-security-test</artifactId>
             <version>4.0.0.RC2</version>
         </dependency>
+        <dependency>
+            <groupId>de.evoila.cf.broker</groupId>
+            <artifactId>core</artifactId>
+            <version>${core.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

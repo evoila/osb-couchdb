@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.evoila.cf.broker.custom.couchdb;
 
 import java.net.URI;
@@ -9,7 +6,6 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
-import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServerAddress;
@@ -27,8 +23,6 @@ import org.apache.http.impl.client.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
-import org.lightcouch.CouchDbClient;
-import org.lightcouch.CouchDbException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
