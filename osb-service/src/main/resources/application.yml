@@ -1,93 +1,14 @@
+---
 spring:
-  profiles: singlenode
-
+  rabbitmq:
+    host: "${RABBITMQ_HOST}"
   data:
     mongodb:
-      database: evoila
-      host: localhost
-      username: evoila
-      password: evoila
-
-login:
-  password: cloudfoundry
-  role: USER
-  username: admin
-
+      host: "${MONGODB_HOST}"
+haproxy:
+  uri: "https://${HAPROXY-AGENT_HOST}/agents/${HAPROXY-AGENT_ID}/schemas?type=listen"
 existing:
   endpoint:
-    database: _users
-    hosts:
-    - ip: localhost
-      name: couchdb
-      port: 5984
-    password: admin
-    username: admin
-
-    catalog.services[0].dashboard_client.redirect_uri: https://osb-couchdb.local/v2/authentication
-    catalog.services[0].dashboard_client.secret: 57894812-39C1-4CAA-AE36-1B6367A81DB1
-    catalog.services[0].bindable: true
-    catalog.services[0].dashboard.auth_endpoint: https://uaa.local/oauth
-    catalog.services[0].dashboard.url: https://osb-couchdb.local/v2/authentication
-    catalog.services[0].dashboard_client.id: osb-couchdb.local
-    catalog.services[0].description: CouchDB Instances
-    catalog.services[0].id: 9372FCCA-EC21-4EC5-B86B-B51E5D75DBE9
-    catalog.services[0].name: osb-couchdb
-    catalog.services[0].plans[0].description: A database on a shared couchdb
-    catalog.services[0].plans[0].free: false
-    catalog.services[0].plans[0].id: C433FC45-6404-433D-A5A5-F826817CF5BA
-    catalog.services[0].plans[0].name: xs
-    catalog.services[0].plans[0].platform: EXISTING_SERVICE
-    catalog.services[0].plans[1].description: A small instance for low requirement
-      apps
-    catalog.services[0].plans[1].free: false
-    catalog.services[0].plans[1].id: 8A1D692D-D110-40CD-8687-745CE03C3A54
-    catalog.services[0].plans[1].metadata.connections: 100
-    catalog.services[0].plans[1].metadata.ingress_instance_group: couchdb
-    catalog.services[0].plans[1].metadata.instance_group_config[0].name: haproxy
-    catalog.services[0].plans[1].metadata.instance_group_config[0].nodes: 0
-    catalog.services[0].plans[1].metadata.instance_group_config[1].name: couchdb
-    catalog.services[0].plans[1].metadata.instance_group_config[1].nodes: 1
-    catalog.services[0].plans[1].metadata.instance_group_config[1].persistent_disk_type: 10GB
-    catalog.services[0].plans[1].metadata.networks[0].name: service
-    catalog.services[0].plans[1].metadata.vm_type: minimal
-    catalog.services[0].plans[1].name: s
-    catalog.services[0].plans[1].platform: BOSH
-    catalog.services[0].plans[2].description: The medium version for CouchDB and distributed
-      applications
-    catalog.services[0].plans[2].free: false
-    catalog.services[0].plans[2].id: 427A7AE5-A942-4473-A721-FEBB32311C75
-    catalog.services[0].plans[2].metadata.connections: 1000
-    catalog.services[0].plans[2].metadata.ingress_instance_group: couchdb
-    catalog.services[0].plans[2].metadata.instance_group_config[0].name: haproxy
-    catalog.services[0].plans[2].metadata.instance_group_config[0].nodes: 0
-    catalog.services[0].plans[2].metadata.instance_group_config[1].name: couchdb
-    catalog.services[0].plans[2].metadata.instance_group_config[1].nodes: 1
-    catalog.services[0].plans[2].metadata.instance_group_config[1].persistent_disk_type: 100GB
-    catalog.services[0].plans[2].metadata.networks[0].name: service
-    catalog.services[0].plans[2].metadata.vm_type: small
-    catalog.services[0].plans[2].name: m
-    catalog.services[0].plans[2].platform: BOSH
-    catalog.services[0].plans[2].schemas.service_binding.create.parameters.$schema: http://json-schema.org/draft-04/schema#
-    catalog.services[0].plans[2].schemas.service_binding.create.parameters.properties.database.description: Specify
-      the database for the service binding.
-    catalog.services[0].plans[2].schemas.service_binding.create.parameters.properties.database.type: string
-    catalog.services[0].plans[2].schemas.service_binding.create.parameters.type: object
-    catalog.services[0].plans[3].description: The large version for CouchDB and distributed
-      applications
-    catalog.services[0].plans[3].free: false
-    catalog.services[0].plans[3].id: DD69H8D3-7876-4056-A0EE-DE8D34907965
-    catalog.services[0].plans[3].metadata.connections: 1000
-    catalog.services[0].plans[3].metadata.ingress_instance_group: haproxy
-    catalog.services[0].plans[3].metadata.instance_group_config[0].name: haproxy
-    catalog.services[0].plans[3].metadata.instance_group_config[0].nodes: 1
-    catalog.services[0].plans[3].metadata.instance_group_config[1].name: couchdb
-    catalog.services[0].plans[3].metadata.instance_group_config[1].nodes: 3
-    catalog.services[0].plans[3].metadata.instance_group_config[1].persistent_disk_type: 100GB
-    catalog.services[0].plans[3].metadata.networks[0].name: service
-    catalog.services[0].plans[3].metadata.vm_type: small
-    catalog.services[0].plans[3].name: l
-    catalog.services[0].plans[3].platform: BOSH
-    catalog.services[0].plans[3].schemas.service_binding.create.parameters.$schema: http://json-schema.org/draft-04/schema#
-    catalog.services[0].plans[3].schemas.service_binding.create.parameters.properties.database.description: Specify
-      the database for the service binding.
-    catalog.services[0].plans[3].schemas.service_binding.create.parameters.properties.database.type: string
+    pcfHosts: "${HAPROXY_HOSTS}"
+    name: haproxy
+    port: 5984
