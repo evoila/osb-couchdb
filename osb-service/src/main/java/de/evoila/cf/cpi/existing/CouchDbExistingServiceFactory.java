@@ -4,6 +4,7 @@
 package de.evoila.cf.cpi.existing;
 
 import com.google.gson.JsonObject;
+import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
@@ -39,7 +40,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 	private CouchDbCustomImplementation couchDbCustomImplementation;
 
     @Autowired
-    private ExistingEndpointBeanImpl existingEndpointBean;
+    private ExistingEndpointBean existingEndpointBean;
 
 	@Override
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, Object> customParameters) throws PlatformException {
