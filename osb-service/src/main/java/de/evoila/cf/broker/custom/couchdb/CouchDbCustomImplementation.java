@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
@@ -48,7 +49,7 @@ public class CouchDbCustomImplementation {
 	private static final Logger log = LoggerFactory.getLogger(CouchDbCustomImplementation.class);
 
 	@Autowired
-	private ExistingEndpointBeanImpl existingEndpointBean;
+	private ExistingEndpointBean existingEndpointBean;
 
 	public CouchDbService connection(ServiceInstance serviceInstance, Plan plan, boolean isAdmin, String database) {
 	    couchDbService = new CouchDbService();
