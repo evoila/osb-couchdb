@@ -29,10 +29,9 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
 
     private CouchDbCustomImplementation couchDbCustomImplementation;
 
-    public CouchDBBoshPlatformService(CouchDbCustomImplementation couchDbCustomImplementation,PlatformRepository repository, CatalogService catalogService,
-                                      ServicePortAvailabilityVerifier availabilityVerifier, BoshProperties boshProperties, Optional<DashboardClient> dashboardClient,
-                                      DeploymentManager deploymentManager) {
-        super(repository, catalogService, availabilityVerifier, boshProperties, dashboardClient, deploymentManager);
+    public CouchDBBoshPlatformService(PlatformRepository repository, CatalogService catalogService, ServicePortAvailabilityVerifier availabilityVerifier,
+                               BoshProperties boshProperties, Optional<DashboardClient> dashboardClient, Environment environment, CouchDbCustomImplementation couchDbCustomImplementation) {
+        super(repository, catalogService, availabilityVerifier, boshProperties, dashboardClient, new CouchDBDeploymentManager(boshProperties, environment));
         this.couchDbCustomImplementation = couchDbCustomImplementation;
     }
 
