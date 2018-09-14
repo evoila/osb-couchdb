@@ -5,20 +5,18 @@ package de.evoila.cf.cpi.existing;
 
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
-import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.repository.PlatformRepository;
+import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.broker.util.RandomString;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -36,11 +34,16 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 	RandomString usernameRandomString = new RandomString(10);
 	RandomString passwordRandomString = new RandomString(15);
 
-	@Autowired
 	private CouchDbCustomImplementation couchDbCustomImplementation;
 
-    @Autowired
     private ExistingEndpointBean existingEndpointBean;
+
+	public CouchDbExistingServiceFactory(PlatformRepository platformRepository, ServicePortAvailabilityVerifier portAvailabilityVerifier,
+										 ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation) {
+		super(platformRepository, portAvailabilityVerifier, existingEndpointBean);
+		this.couchDbCustomImplementation = couchDbCustomImplementation;
+		this.existingEndpointBean = existingEndpointBean;
+	}
 
 	@Override
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, Object> customParameters) throws PlatformException {
