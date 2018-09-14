@@ -36,12 +36,6 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
         this.couchDbCustomImplementation = couchDbCustomImplementation;
     }
 
-    CouchDBBoshPlatformService(PlatformRepository repository, CatalogService catalogService, ServicePortAvailabilityVerifier availabilityVerifier, BoshProperties boshProperties, Optional<DashboardClient> dashboardClient, Environment environment) {
-        super(repository, catalogService,
-              availabilityVerifier, boshProperties,
-              dashboardClient, new CouchDBDeploymentManager(boshProperties, environment));
-    }
-
     @Override
     protected void updateHosts(ServiceInstance serviceInstance, Plan plan, Deployment deployment) {
         List<Vm> vms = super.getVms(serviceInstance);
