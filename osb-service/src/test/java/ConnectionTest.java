@@ -4,8 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
 import de.evoila.Application;
 import de.evoila.cf.broker.exception.InvalidParametersException;
 import de.evoila.cf.broker.model.Plan;
@@ -14,8 +12,6 @@ import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstanceRequest;
 import de.evoila.cf.broker.service.impl.CatalogServiceImpl;
 import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
-import de.evoila.cf.broker.util.ParameterValidator;
-import de.evoila.cf.broker.util.RandomString;
 import de.evoila.cf.broker.InstanceParamTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,12 +31,14 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 /**
  * @author Marco Di Martino
  */
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @ContextConfiguration
 public class ConnectionTest{
 
-
+    @Autowired
+    private MockMvc mockMvc;
 
     @Autowired
     private DeploymentServiceImpl deploymentService;
@@ -49,13 +47,13 @@ public class ConnectionTest{
     private CatalogServiceImpl catalogService;
 
 
-    /*@Test
+    @Test
     public void testAgainstCatalog () throws Exception {
         this.mockMvc.perform(get("/v2/catalog")
                 .header("X-Broker-API-Version", "2.13")
                 .with(httpBasic("admin", "cloudfoundry")))
                 .andDo(print()).andExpect(status().isOk());
-    }*/
+    }
 
     /*@Test
     public void testParametersValidation () throws Exception {
@@ -72,7 +70,7 @@ public class ConnectionTest{
     */
 
     @Test
-    public void test1 () throws Exception {
+    public void testValidateParametersOnCreateInstance () throws Exception {
 
         List<ServiceDefinition> services = catalogService.getCatalog().getServices();
         List<Plan> plans = services.get(0).getPlans();
@@ -99,56 +97,4 @@ public class ConnectionTest{
         paramTest.testCreateInstanceParameterValidationSuccess(serviceInstanceRequest, plan);
 
     }
-
-
-
-    /*
-
-
-    @Test(expected = InvalidParametersException.class)
-    public void ParametersOnServiceInstanceRequestObjectFailsDueToValue () throws Exception {
-
-        List<ServiceDefinition> services =  catalogService.getCatalog().getServices();
-        List<Plan> plans = services.get(0).getPlans();
-        Plan plan = plans.get(0);
-        ServiceInstanceRequest serviceInstanceRequest = new ServiceInstanceRequest(services.get(0).getId(), plan.getId(), "org-guid-here", "space-guid-here", null);
-
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("name", "thisValueIsTooLong");
-        serviceInstanceRequest.setParameters(params);
-
-        ParameterValidator.validateParameters(serviceInstanceRequest, plan);
-        assertNotNull(serviceInstanceRequest.getParameters());
-    }
-
-    @Test(expected = InvalidParametersException.class)
-    public void ParametersOnServiceInstanceRequestObjectFailsDueToKey () throws Exception {
-
-        Plan plan = new Plan("C433FC45-6404-433D-A5A5-F826817CF5BA", "xs", "A database on a shared couchdb", Platform.EXISTING_SERVICE, false);
-        ServiceInstanceRequest serviceInstanceRequest = new ServiceInstanceRequest("9372FCCA-EC21-4EC5-B86B-B51E5D75DBE9", "C433FC45-6404-433D-A5A5-F826817CF5BA", "org-guid-here", "space-guid-here", null);
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("thisKeyIsNotAllowed", "value");
-        serviceInstanceRequest.setParameters(params);
-
-        ParameterValidator.validateParameters(serviceInstanceRequest, plan);
-        assertNotNull(serviceInstanceRequest.getParameters());
-    }
-
-
-    @Test(expected = InvalidParametersException.class)
-    public void ParametersOnServiceInstanceRequestObjectAccepted () throws Exception {
-
-        Plan plan = new Plan("C433FC45-6404-433D-A5A5-F826817CF5BA", "xs", "A database on a shared couchdb", Platform.EXISTING_SERVICE, false);
-        ServiceInstanceRequest serviceInstanceRequest = new ServiceInstanceRequest("9372FCCA-EC21-4EC5-B86B-B51E5D75DBE9", "C433FC45-6404-433D-A5A5-F826817CF5BA", "org-guid-here", "space-guid-here", null);
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("name", "Marco");
-        serviceInstanceRequest.setParameters(params);
-
-        ParameterValidator.validateParameters(serviceInstanceRequest, plan);
-        assertNotNull(serviceInstanceRequest.getParameters());
-    }
-    */
 }
