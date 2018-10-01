@@ -7,7 +7,6 @@ import de.evoila.cf.broker.model.ServerAddress;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
-import java.net.UnknownHostException;
 import java.util.List;
 
 /**

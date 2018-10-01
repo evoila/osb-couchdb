@@ -3,28 +3,30 @@
  */
 package de.evoila.cf.broker.custom.couchdb;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.*;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.exception.InvalidParametersException;
-import de.evoila.cf.broker.exception.PlatformException;
+import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.*;
-import de.evoila.cf.broker.persistence.repository.ServiceDefinitionRepositoryImpl;
+import de.evoila.cf.broker.repository.BindingRepository;
+import de.evoila.cf.broker.repository.RouteBindingRepository;
+import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
+import de.evoila.cf.broker.repository.ServiceInstanceRepository;
+import de.evoila.cf.broker.service.HAProxyService;
+import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.util.RandomString;
 import de.evoila.cf.broker.util.ServiceInstanceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.evoila.cf.broker.exception.ServiceBrokerException;
-import de.evoila.cf.broker.service.impl.BindingServiceImpl;
-
-import static de.evoila.cf.broker.model.Platform.BOSH;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Johannes Hiemer.
@@ -45,17 +47,22 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
     private static final String DB = "db-";
 
-    @Autowired
     private ExistingEndpointBean existingEndpointBean;
 
-    @Autowired
-    private ServiceDefinitionRepositoryImpl serviceDefinitionRepository;
+    private ServiceDefinitionRepository serviceDefinitionRepository;
+
+    private CouchDbCustomImplementation couchDbCustomImplementation;
 
     RandomString usernameRandomString = new RandomString(10);
     RandomString passwordRandomString = new RandomString(15);
 
-    @Autowired
-    private CouchDbCustomImplementation couchDbCustomImplementation;
+    public CouchDbBindingService(BindingRepository bindingRepository, ServiceDefinitionRepository serviceDefinitionRepository, ServiceInstanceRepository serviceInstanceRepository,
+                                 RouteBindingRepository routeBindingRepository, HAProxyService haProxyService, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation) {
+        super(bindingRepository, serviceDefinitionRepository, serviceInstanceRepository, routeBindingRepository, haProxyService);
+        this.existingEndpointBean = existingEndpointBean;
+        this.serviceDefinitionRepository = serviceDefinitionRepository;
+        this.couchDbCustomImplementation = couchDbCustomImplementation;
+    }
 
     @Override
     protected Map<String, Object> createCredentials(String bindingId, ServiceInstanceBindingRequest serviceInstanceBindingRequest, ServiceInstance serviceInstance,

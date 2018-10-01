@@ -9,11 +9,11 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.CatalogService;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
+import de.evoila.cf.cpi.bosh.deployment.DeploymentManager;
 import io.bosh.client.deployments.Deployment;
 import io.bosh.client.vms.Vm;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -27,14 +27,12 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
 
     private final int defaultPort = 5984;
 
-    @Autowired
     private CouchDbCustomImplementation couchDbCustomImplementation;
 
-
-    CouchDBBoshPlatformService(PlatformRepository repository, CatalogService catalogService, ServicePortAvailabilityVerifier availabilityVerifier, BoshProperties boshProperties, Optional<DashboardClient> dashboardClient, Environment environment) {
-        super(repository, catalogService,
-              availabilityVerifier, boshProperties,
-              dashboardClient, new CouchDBDeploymentManager(boshProperties, environment));
+    public CouchDBBoshPlatformService(PlatformRepository repository, CatalogService catalogService, ServicePortAvailabilityVerifier availabilityVerifier,
+                               BoshProperties boshProperties, Optional<DashboardClient> dashboardClient, Environment environment, CouchDbCustomImplementation couchDbCustomImplementation) {
+        super(repository, catalogService, availabilityVerifier, boshProperties, dashboardClient, new CouchDBDeploymentManager(boshProperties, environment));
+        this.couchDbCustomImplementation = couchDbCustomImplementation;
     }
 
     @Override
