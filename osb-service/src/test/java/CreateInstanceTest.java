@@ -1,12 +1,17 @@
 import com.google.gson.JsonObject;
 import de.evoila.Application;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
-import de.evoila.cf.broker.model.*;
+import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
+import de.evoila.cf.broker.model.Platform;
+import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
+import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
+import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
-import de.evoila.cf.broker.service.impl.BindingServiceImpl;
-import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.cpi.existing.ExistingServiceFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -19,7 +24,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -133,7 +140,7 @@ public class CreateInstanceTest {
 
         ServiceInstanceBindingRequest request = new ServiceInstanceBindingRequest(SERVICE_ID, plan.getId());
         ServiceInstanceBindingResponse serviceInstanceBinding = bindingService.createServiceInstanceBinding("binding_id", serviceInstance.getId(),
-                request);
+                request, false);
         assertNotNull(cl.find(JsonObject.class, "org.couchdb.user:"+serviceInstanceBinding.getCredentials().get("username")));
 
 
@@ -171,7 +178,7 @@ public class CreateInstanceTest {
 
     @After
     public void delete () throws Exception {
-        bindingService.deleteServiceInstanceBinding("binding_id", "1234-5678"); // it's the username
+        bindingService.deleteServiceInstanceBinding("binding_id", "1234-5678", false);
         deploymentService.syncDeleteInstance(getServiceInstance(), plan, service);
     }
 

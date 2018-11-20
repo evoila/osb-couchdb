@@ -9,10 +9,10 @@ import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.exception.InvalidParametersException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.*;
-import de.evoila.cf.broker.repository.BindingRepository;
-import de.evoila.cf.broker.repository.RouteBindingRepository;
-import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
-import de.evoila.cf.broker.repository.ServiceInstanceRepository;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
+import de.evoila.cf.broker.repository.*;
+import de.evoila.cf.broker.service.AsyncBindingService;
 import de.evoila.cf.broker.service.HAProxyService;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.util.RandomString;
@@ -28,11 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Johannes Hiemer.
- * @author Marco Di Martino
- *
- */
+/** @author Marco Di Martino */
 @Service
 public class CouchDbBindingService extends BindingServiceImpl {
 
@@ -57,8 +53,9 @@ public class CouchDbBindingService extends BindingServiceImpl {
     RandomString passwordRandomString = new RandomString(15);
 
     public CouchDbBindingService(BindingRepository bindingRepository, ServiceDefinitionRepository serviceDefinitionRepository, ServiceInstanceRepository serviceInstanceRepository,
-                                 RouteBindingRepository routeBindingRepository, HAProxyService haProxyService, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation) {
-        super(bindingRepository, serviceDefinitionRepository, serviceInstanceRepository, routeBindingRepository, haProxyService);
+                                 RouteBindingRepository routeBindingRepository, HAProxyService haProxyService, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation,
+                                 JobRepository jobRepository, AsyncBindingService asyncBindingService, PlatformRepository platformRepository) {
+        super(bindingRepository, serviceDefinitionRepository, serviceInstanceRepository, routeBindingRepository, haProxyService, jobRepository, asyncBindingService, platformRepository);
         this.existingEndpointBean = existingEndpointBean;
         this.serviceDefinitionRepository = serviceDefinitionRepository;
         this.couchDbCustomImplementation = couchDbCustomImplementation;
@@ -77,9 +74,9 @@ public class CouchDbBindingService extends BindingServiceImpl {
         String database = null;
 
         if (plan.getPlatform() == Platform.EXISTING_SERVICE) {
-            database = DB + serviceInstance.getId();
+            database = (DB + serviceInstance.getId()).toLowerCase();
             try {
-                couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
+                CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
             } catch (Exception e) {
                 throw new ServiceBrokerException("Error while creating binding user", e);
             }
@@ -94,7 +91,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
             if (parameters == null || parameters.size() <= 0) {
                 database = "default";
                 try {
-                    couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
+                    CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
                 } catch (Exception e) {
                     throw new ServiceBrokerException("Error while creating binding user", e);
                 }
@@ -112,7 +109,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
                 }
                 // here should check if the database exists, and throw an Exception if it doesn't
                 try {
-                    couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
+                    CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
                 } catch (Exception e) {
                     throw new ServiceBrokerException("Error while creating binding user", e);
                 }
@@ -161,7 +158,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
         JsonObject toRemove = service.getCouchDbClient().find(JsonObject.class, "org.couchdb.user:" + bindingId);
         service.getCouchDbClient().remove(toRemove);
-        String database = null;
+        String database;
         // need to open a connection on the database
         if (plan.getPlatform() == Platform.BOSH) {
             // delete binding as Server Admin
@@ -170,7 +167,9 @@ public class CouchDbBindingService extends BindingServiceImpl {
             JsonObject security_doc = service.getCouchDbClient().find(JsonObject.class, "_security");
             SecurityDocument sd = new Gson().fromJson(security_doc, SecurityDocument.class);
             sd.getAdmins().deleteName(bindingId);
-
+            sd.getMembers().deleteName(bindingId);
+            sd.getAdmins().deleteRole(database+"_admin");
+            sd.getMembers().deleteRole(database+"_member");
             JsonObject security = (JsonObject) new Gson().toJsonTree(sd);
             try {
                 couchDbCustomImplementation.sendPut(service, database, serviceInstance.getUsername(),
@@ -180,12 +179,14 @@ public class CouchDbBindingService extends BindingServiceImpl {
             }
         }else if (plan.getPlatform() == Platform.EXISTING_SERVICE) {
             // delete binding as Database-Admin
-            database = DB + serviceInstance.getId();
+            database = (DB + serviceInstance.getId()).toLowerCase();
             service = couchDbCustomImplementation.connection(serviceInstance, plan, false, database);
             JsonObject security_doc = service.getCouchDbClient().find(JsonObject.class, "_security");
             SecurityDocument sd = new Gson().fromJson(security_doc, SecurityDocument.class);
             sd.getAdmins().deleteName(bindingId);
-
+            sd.getMembers().deleteName(bindingId);
+            sd.getAdmins().deleteRole(database+"_admin");
+            sd.getMembers().deleteRole(database+"_member");
             JsonObject security = (JsonObject) new Gson().toJsonTree(sd);
             try {
                 couchDbCustomImplementation.sendPut(service, database, serviceInstance.getUsername(),
@@ -198,11 +199,6 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
 	// probably
     private String getDatabaseForBinding(ServiceInstanceBindingRequest serviceInstanceBindingRequest, Plan plan) {return "";}
-
-	@Override
-	public ServiceInstanceBinding getServiceInstanceBinding(String id) {
-		throw new UnsupportedOperationException();
-	}
 
 	/*
 	 * (non-Javadoc)

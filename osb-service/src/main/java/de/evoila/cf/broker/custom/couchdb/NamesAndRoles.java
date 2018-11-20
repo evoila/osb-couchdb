@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
-
+/** @author Marco Di Martino */
 public class NamesAndRoles {
 
         @Expose

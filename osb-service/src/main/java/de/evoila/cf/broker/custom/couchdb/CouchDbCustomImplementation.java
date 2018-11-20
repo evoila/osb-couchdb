@@ -3,10 +3,10 @@ package de.evoila.cf.broker.custom.couchdb;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
-import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
-import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.util.ServiceInstanceUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -30,11 +30,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Johannes Hiemer
- * @author Marco Di Martino
- */
-
+/** @author Marco Di Martino */
 @Service
 public class CouchDbCustomImplementation {
 
@@ -117,7 +113,7 @@ public class CouchDbCustomImplementation {
 		JsonObject securityDocument = connection.getCouchDbClient().find(JsonObject.class, "_security");
 		String username = connection.getConfig().getUsername();
 		Gson gson = new Gson();
-		SecurityDocument sec_doc = null;
+		SecurityDocument sec_doc;
 
 		if (securityDocument.size() == 0) {
 			ArrayList<String> adminNames = new ArrayList<>();

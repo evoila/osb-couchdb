@@ -8,8 +8,8 @@ import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
 import de.evoila.cf.broker.exception.PlatformException;
-import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.broker.util.RandomString;
@@ -19,11 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-/**
- * @author Johannes Hiemer
- * @author Marco Di Martino
- *
- */
+/** @author Johannes Hiemer, Marco Di Martino */
 @Service
 public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 
@@ -57,7 +53,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		String database = serviceInstance.getId();
 
 		log.info("Creating the CouchDB Service...");
-		database = DB + database;
+		database = (DB + database).toLowerCase();
 		try {
 			CouchDbClient client = couchDbService.getCouchDbClient();
 			client.context().createDB(database);
@@ -86,7 +82,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		String database = serviceInstance.getId();
 		CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan, true, null);
 
-		database = DB + database;
+		database = (DB + database).toLowerCase();
 		try{
 			couchDbService.getCouchDbClient().context().deleteDB(database, "delete database");
 			JsonObject user = couchDbService.getCouchDbClient().find(JsonObject.class, PREFIX_ID+serviceInstance.getUsername());

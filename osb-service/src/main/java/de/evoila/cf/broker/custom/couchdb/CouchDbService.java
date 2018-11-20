@@ -3,7 +3,7 @@
  */
 package de.evoila.cf.broker.custom.couchdb;
 
-import de.evoila.cf.broker.model.ServerAddress;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 

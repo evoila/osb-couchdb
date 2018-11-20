@@ -2,15 +2,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.Application;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
-import de.evoila.cf.broker.model.*;
-import de.evoila.cf.broker.persistence.repository.BindingRepositoryImpl;
-import de.evoila.cf.broker.repository.ServiceInstanceRepository;
-import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
-import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
-import de.evoila.cf.broker.custom.couchdb.UserDocument;
-import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
+import de.evoila.cf.broker.custom.couchdb.UserDocument;
+import de.evoila.cf.broker.model.*;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
+import de.evoila.cf.broker.persistence.repository.BindingRepositoryImpl;
+import de.evoila.cf.broker.repository.ServiceInstanceRepository;
+import de.evoila.cf.broker.service.impl.BindingServiceImpl;
+import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
+import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
 import de.evoila.cf.cpi.existing.ExistingServiceFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -254,7 +256,7 @@ public class ClusterTest {
         String binding_id ="binding_id";
 
         ServiceInstanceBindingRequest request = new ServiceInstanceBindingRequest("sample-local", plan.getId());
-        ServiceInstanceBindingResponse serviceInstanceBinding = bindingService.createServiceInstanceBinding(binding_id, si.getId(), request);
+        ServiceInstanceBindingResponse serviceInstanceBinding = bindingService.createServiceInstanceBinding(binding_id, si.getId(), request, false);
 
         //assertEquals(binding_id, serviceInstanceBinding.getCredentials().get("username"));
 
@@ -273,7 +275,7 @@ public class ClusterTest {
         String binding_id ="binding_id";
         ServiceInstanceBinding n = bindingRepository.findOne(binding_id);
         ServiceInstance s = repository.getServiceInstance("new-db");
-        bindingService.deleteServiceInstanceBinding(binding_id, "1234-5678");
+        bindingService.deleteServiceInstanceBinding(binding_id, "1234-5678", false);
         deploymentService.syncDeleteInstance(s, plan, service);
         ServiceInstance s1 = repository.getServiceInstance("instance_binding");
         //deploymentService.syncDeleteInstance(s1, plan, service);

@@ -1,21 +1,22 @@
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.Application;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
-import de.evoila.cf.broker.model.*;
-import de.evoila.cf.cpi.existing.CouchDbExistingServiceFactory;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
-import de.evoila.cf.broker.custom.couchdb.CouchDbService;
+import de.evoila.cf.broker.custom.couchdb.NamesAndRoles;
+import de.evoila.cf.broker.custom.couchdb.SecurityDocument;
+import de.evoila.cf.broker.custom.couchdb.UserDocument;
+import de.evoila.cf.broker.model.Platform;
+import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.cpi.existing.ExistingServiceFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.lightcouch.CouchDbClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,15 +24,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import de.evoila.cf.broker.custom.couchdb.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
