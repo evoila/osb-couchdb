@@ -52,7 +52,7 @@ public class CouchDbCustomImplementation {
 		this.existingEndpointBean = existingEndpointBean;
 	}
 
-	public CouchDbService connection(ServiceInstance serviceInstance, Plan plan, boolean isAdmin, String database) {
+	public CouchDbService connection(ServiceInstance serviceInstance, Plan plan, boolean isAdmin, String database) throws PlatformException {
 	    couchDbService = new CouchDbService();
 
 	    if(plan.getPlatform() == Platform.BOSH) {

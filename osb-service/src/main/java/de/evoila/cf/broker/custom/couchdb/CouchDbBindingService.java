@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
 import de.evoila.cf.broker.exception.InvalidParametersException;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.*;
 import de.evoila.cf.broker.model.catalog.ServerAddress;
@@ -63,7 +64,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
 
     @Override
     protected Map<String, Object> createCredentials(String bindingId, ServiceInstanceBindingRequest serviceInstanceBindingRequest, ServiceInstance serviceInstance,
-                                                    Plan plan, ServerAddress host) throws ServiceBrokerException, InvalidParametersException {
+                                                    Plan plan, ServerAddress host) throws ServiceBrokerException, InvalidParametersException, PlatformException {
 
         log.info("Binding the CouchDB Service...");
 
@@ -149,7 +150,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
     }
 
 	@Override
-	public void unbindService(ServiceInstanceBinding serviceInstanceBinding, ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+	public void unbindService(ServiceInstanceBinding serviceInstanceBinding, ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException, PlatformException {
 
         log.info("Unbinding the CouchDB Service...");
         String bindingId = (String) serviceInstanceBinding.getCredentials().get(USER);

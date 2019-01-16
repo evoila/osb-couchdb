@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.broker.custom.couchdb;
 
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.catalog.ServerAddress;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
@@ -30,19 +31,22 @@ public class CouchDbService {
 
 	private CouchDbClient couchDbClient;
 
-	public void createConnection(String username, String password, String database, List<ServerAddress> serverAddresses) {
-        this.serverAddress = serverAddresses.get(0);
+	public void createConnection(String username, String password, String database, List<ServerAddress> serverAddresses) throws PlatformException {
+		this.serverAddress = serverAddresses.get(0);
 
-       	config = new CouchDbProperties();
-        config.setDbName(database);
-        config.setCreateDbIfNotExist(false);
-        config.setProtocol("http");
-        config.setHost(serverAddress.getIp());
-        config.setPort(serverAddress.getPort());
-        config.setUsername(username);
-        config.setPassword(password);
-
-		couchDbClient = new CouchDbClient(config);
+		config = new CouchDbProperties();
+		config.setDbName(database);
+		config.setCreateDbIfNotExist(false);
+		config.setProtocol("http");
+		config.setHost(serverAddress.getIp());
+		config.setPort(serverAddress.getPort());
+		config.setUsername(username);
+		config.setPassword(password);
+		try {
+			couchDbClient = new CouchDbClient(config);
+		} catch (Exception e) {
+			throw new PlatformException("connection am arsch");
+		}
 		setInitialized(true);
 	}
 

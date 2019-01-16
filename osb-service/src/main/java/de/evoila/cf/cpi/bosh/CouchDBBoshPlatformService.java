@@ -3,6 +3,7 @@ package de.evoila.cf.cpi.bosh;
 import de.evoila.cf.broker.bean.BoshProperties;
 import de.evoila.cf.broker.custom.couchdb.CouchDbCustomImplementation;
 import de.evoila.cf.broker.custom.couchdb.CouchDbService;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.DashboardClient;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.catalog.plan.Plan;
@@ -35,7 +36,7 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
     }
 
     @Override
-    protected void updateHosts(ServiceInstance serviceInstance, Plan plan, Deployment deployment) {
+    protected void updateHosts(ServiceInstance serviceInstance, Plan plan, Deployment deployment) throws PlatformException {
         List<Vm> vms = super.getVms(serviceInstance);
         serviceInstance.getHosts().clear();
 
@@ -48,7 +49,7 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
     @Override
     public void postDeleteInstance(ServiceInstance serviceInstance) { }
 
-    private void createDefaultDatabase(ServiceInstance serviceInstance, Plan plan) {
+    private void createDefaultDatabase(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 
         CouchDbService couchDbService = couchDbCustomImplementation.connection(serviceInstance, plan, true, null);
         String database = "default";
