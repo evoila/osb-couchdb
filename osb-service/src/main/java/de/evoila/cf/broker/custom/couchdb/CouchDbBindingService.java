@@ -107,7 +107,6 @@ public class CouchDbBindingService extends BindingServiceImpl {
                 if (!(service.getCouchDbClient().context().getAllDbs().contains(database))){
                     throw new InvalidParametersException("The specified database for the binding does not exist");
                 }
-                // here should check if the database exists, and throw an Exception if it doesn't
                 try {
                     CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
                 } catch (Exception e) {

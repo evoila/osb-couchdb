@@ -3,6 +3,7 @@ package de.evoila.cf.broker.custom.couchdb;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.catalog.ServerAddress;
@@ -92,7 +93,7 @@ public class CouchDbCustomImplementation {
         return couchDbService;
 	}
 
-	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database, String username, String password, Plan plan) throws Exception {
+	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database, String username, String password, Plan plan) throws PlatformException {
 		String role = database + "_admin";
 		String id = PREFIX_ID + username;
 
@@ -106,7 +107,7 @@ public class CouchDbCustomImplementation {
 
     }
 
-    public void bindRole(CouchDbService connection, String database, String bindingName, String password) throws Exception {
+    public void bindRole(CouchDbService connection, String database, String bindingName, String password) throws PlatformException {
 		// always creating a new database admin and member admin, this is the only way to prevent other users accessing the database
 		String adminRole = database + "_admin";
 		String memberRole = database + "_member";
@@ -141,14 +142,16 @@ public class CouchDbCustomImplementation {
 		}
 
 		JsonObject security = (JsonObject) gson.toJsonTree(sec_doc);
-
-		sendPut(connection, database, username, password, security.toString());
-
+		try {
+			sendPut(connection, database, username, password, security.toString());
+		} catch (Exception e) {
+			throw new PlatformException(e.getMessage(), e.getCause());
+		}
 	}
 
     /* must implement a Preemptive Basic Authentication */
 	public void sendPut(CouchDbService connection, String database, String username,
-                                   String password, String file_security) throws Exception {
+                                   String password, String file_security) throws PlatformException {
 
 		String host = connection.getConfig().getHost();
 		String baseUri = connection.getCouchDbClient().getBaseUri().toString();
@@ -172,17 +175,21 @@ public class CouchDbCustomImplementation {
 
 		HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
 		StringEntity params = new StringEntity(file_security, "UTF-8");
-		HttpPut putRequest = new HttpPut(new URI(uri));
+		try {
+			HttpPut putRequest = new HttpPut(new URI(uri));
 
-		params.setContentType(APPLICATION_JSON);
-		putRequest.addHeader(CONTENT_TYPE,APPLICATION_JSON);
-		putRequest.addHeader("Accept", APPLICATION_JSON);
-		putRequest.setEntity(params);
+			params.setContentType(APPLICATION_JSON);
+			putRequest.addHeader(CONTENT_TYPE,APPLICATION_JSON);
+			putRequest.addHeader("Accept", APPLICATION_JSON);
+			putRequest.setEntity(params);
 
-		HttpResponse response = client.execute(putRequest, context);
-        if (response.getStatusLine().getStatusCode() != 200){
-            throw new Exception("Error while updating _security document");
-        }
+			HttpResponse response = client.execute(putRequest, context);
+			if (response.getStatusLine().getStatusCode() != 200) {
+				throw new PlatformException("Error while updating binding");
+			}
+		} catch (Exception e) {
+        	throw new PlatformException(e.getMessage(), e.getCause());
+			}
 	}
 
 
