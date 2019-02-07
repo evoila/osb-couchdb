@@ -15,6 +15,8 @@ import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.broker.util.RandomString;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -22,6 +24,8 @@ import java.util.Map;
 /** @author Johannes Hiemer, Marco Di Martino */
 @Service
 public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
+
+	private static final Logger log = LoggerFactory.getLogger(CouchDbExistingServiceFactory.class);
 
     //private static final String HTTP = "http://";
 	private static final String PREFIX_ID = "org.couchdb.user:";
@@ -45,6 +49,7 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, Object> customParameters) throws PlatformException {
 		String username = usernameRandomString.nextString();
 		String password = passwordRandomString.nextString();
+
 
 		serviceInstance.setUsername(username);
 		serviceInstance.setPassword(password);
@@ -85,11 +90,16 @@ public class CouchDbExistingServiceFactory extends ExistingServiceFactory {
 		database = (DB + database).toLowerCase();
 		try{
 			couchDbService.getCouchDbClient().context().deleteDB(database, "delete database");
-			JsonObject user = couchDbService.getCouchDbClient().find(JsonObject.class, PREFIX_ID+serviceInstance.getUsername());
+			JsonObject user = couchDbService.getCouchDbClient().find(JsonObject.class, PREFIX_ID + serviceInstance.getUsername());
 			couchDbService.getCouchDbClient().remove(user);
 		}catch(CouchDbException e) {
 			throw new PlatformException("could not delete from the database", e);
 		}
+	}
+
+	@Override
+	public ServiceInstance getInstance(ServiceInstance serviceInstance, Plan plan){
+		return null;
 	}
 
 }

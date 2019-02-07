@@ -192,7 +192,6 @@ public class CouchDbCustomImplementation {
 			}
 	}
 
-
 	public void bindRoleToInstanceWithPassword(CouchDbService connection, String database,
 			String username, String password, Plan plan) throws Exception {
 

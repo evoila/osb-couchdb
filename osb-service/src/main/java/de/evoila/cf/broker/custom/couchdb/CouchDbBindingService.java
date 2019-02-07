@@ -77,7 +77,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
         if (plan.getPlatform() == Platform.EXISTING_SERVICE) {
             database = (DB + serviceInstance.getId()).toLowerCase();
             try {
-                CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
+                couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
             } catch (Exception e) {
                 throw new ServiceBrokerException("Error while creating binding user", e);
             }
@@ -92,7 +92,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
             if (parameters == null || parameters.size() <= 0) {
                 database = "default";
                 try {
-                    CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
+                    couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, password, plan);
                 } catch (Exception e) {
                     throw new ServiceBrokerException("Error while creating binding user", e);
                 }
@@ -109,7 +109,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
                     throw new InvalidParametersException("The specified database for the binding does not exist");
                 }
                 try {
-                    CouchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
+                    couchDbCustomImplementation.bindRoleToDatabaseWithPassword(service, database, username, serviceInstance.getPassword(), plan);
                 } catch (Exception e) {
                     throw new ServiceBrokerException("Error while creating binding user", e);
                 }

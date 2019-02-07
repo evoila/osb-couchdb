@@ -47,6 +47,11 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
     }
 
     @Override
+    public ServiceInstance getInstance(ServiceInstance serviceInstance, Plan plan){
+        return null;
+    }
+
+    @Override
     public void postDeleteInstance(ServiceInstance serviceInstance) { }
 
     private void createDefaultDatabase(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
