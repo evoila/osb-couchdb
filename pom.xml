@@ -16,7 +16,6 @@
 	</parent>
 
 	<modules>
-		<module>osb-backup-core</module>
 		<module>osb-dashboard</module>
 		<module>osb-core</module>
 		<module>osb-persistence</module>
@@ -141,6 +140,10 @@
 		<repository>
 			<id>spring-repository</id>
 			<url>https://repo.spring.io/libs-release</url>
+		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 

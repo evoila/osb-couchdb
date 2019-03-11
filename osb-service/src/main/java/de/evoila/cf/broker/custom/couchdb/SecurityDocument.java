@@ -2,12 +2,8 @@ package de.evoila.cf.broker.custom.couchdb;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import de.evoila.cf.broker.custom.couchdb.NamesAndRoles;
 
-/**
- * @author Marco Di Martino
- */
-
+/** @author Marco Di Martino */
 public class SecurityDocument {
 
     @Expose

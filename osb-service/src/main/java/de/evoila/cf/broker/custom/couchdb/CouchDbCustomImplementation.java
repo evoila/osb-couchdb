@@ -1,16 +1,13 @@
 package de.evoila.cf.broker.custom.couchdb;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.evoila.cf.broker.bean.ExistingEndpointBean;
-import de.evoila.cf.broker.bean.impl.ExistingEndpointBeanImpl;
-import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Platform;
-import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.util.ServiceInstanceUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -18,22 +15,23 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * @author Johannes Hiemer
- * @author Marco Di Martino
- */
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+/** @author Marco Di Martino */
 @Service
 public class CouchDbCustomImplementation {
 
@@ -48,10 +46,13 @@ public class CouchDbCustomImplementation {
 	private CouchDbService couchDbService;
 	private static final Logger log = LoggerFactory.getLogger(CouchDbCustomImplementation.class);
 
-	@Autowired
 	private ExistingEndpointBean existingEndpointBean;
 
-	public CouchDbService connection(ServiceInstance serviceInstance, Plan plan, boolean isAdmin, String database) {
+	public CouchDbCustomImplementation(ExistingEndpointBean existingEndpointBean) {
+		this.existingEndpointBean = existingEndpointBean;
+	}
+
+	public CouchDbService connection(ServiceInstance serviceInstance, Plan plan, boolean isAdmin, String database) throws PlatformException {
 	    couchDbService = new CouchDbService();
 
 	    if(plan.getPlatform() == Platform.BOSH) {
@@ -92,7 +93,7 @@ public class CouchDbCustomImplementation {
         return couchDbService;
 	}
 
-	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database, String username, String password, Plan plan) throws Exception {
+	public static void bindRoleToDatabaseWithPassword(CouchDbService connection, String database, String username, String password, Plan plan) throws PlatformException {
 		String role = database + "_admin";
 		String id = PREFIX_ID + username;
 
@@ -106,14 +107,14 @@ public class CouchDbCustomImplementation {
 
     }
 
-    public void bindRole(CouchDbService connection, String database, String bindingName, String password) throws Exception {
+    public void bindRole(CouchDbService connection, String database, String bindingName, String password) throws PlatformException {
 		// always creating a new database admin and member admin, this is the only way to prevent other users accessing the database
 		String adminRole = database + "_admin";
 		String memberRole = database + "_member";
 		JsonObject securityDocument = connection.getCouchDbClient().find(JsonObject.class, "_security");
 		String username = connection.getConfig().getUsername();
 		Gson gson = new Gson();
-		SecurityDocument sec_doc = null;
+		SecurityDocument sec_doc;
 
 		if (securityDocument.size() == 0) {
 			ArrayList<String> adminNames = new ArrayList<>();
@@ -141,14 +142,16 @@ public class CouchDbCustomImplementation {
 		}
 
 		JsonObject security = (JsonObject) gson.toJsonTree(sec_doc);
-
-		sendPut(connection, database, username, password, security.toString());
-
+		try {
+			sendPut(connection, database, username, password, security.toString());
+		} catch (Exception e) {
+			throw new PlatformException(e.getMessage(), e.getCause());
+		}
 	}
 
     /* must implement a Preemptive Basic Authentication */
 	public void sendPut(CouchDbService connection, String database, String username,
-                                   String password, String file_security) throws Exception {
+                                   String password, String file_security) throws PlatformException {
 
 		String host = connection.getConfig().getHost();
 		String baseUri = connection.getCouchDbClient().getBaseUri().toString();
@@ -172,19 +175,22 @@ public class CouchDbCustomImplementation {
 
 		HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
 		StringEntity params = new StringEntity(file_security, "UTF-8");
-		HttpPut putRequest = new HttpPut(new URI(uri));
+		try {
+			HttpPut putRequest = new HttpPut(new URI(uri));
 
-		params.setContentType(APPLICATION_JSON);
-		putRequest.addHeader(CONTENT_TYPE,APPLICATION_JSON);
-		putRequest.addHeader("Accept", APPLICATION_JSON);
-		putRequest.setEntity(params);
+			params.setContentType(APPLICATION_JSON);
+			putRequest.addHeader(CONTENT_TYPE,APPLICATION_JSON);
+			putRequest.addHeader("Accept", APPLICATION_JSON);
+			putRequest.setEntity(params);
 
-		HttpResponse response = client.execute(putRequest, context);
-        if (response.getStatusLine().getStatusCode() != 200){
-            throw new Exception("Error while updating _security document");
-        }
+			HttpResponse response = client.execute(putRequest, context);
+			if (response.getStatusLine().getStatusCode() != 200) {
+				throw new PlatformException("Error while updating binding");
+			}
+		} catch (Exception e) {
+        	throw new PlatformException(e.getMessage(), e.getCause());
+			}
 	}
-
 
 	public void bindRoleToInstanceWithPassword(CouchDbService connection, String database,
 			String username, String password, Plan plan) throws Exception {

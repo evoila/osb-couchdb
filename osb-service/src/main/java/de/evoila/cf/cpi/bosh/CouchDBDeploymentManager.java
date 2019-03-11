@@ -1,8 +1,8 @@
 package de.evoila.cf.cpi.bosh;
 
 import de.evoila.cf.broker.bean.BoshProperties;
-import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.util.RandomString;
 import de.evoila.cf.cpi.bosh.deployment.DeploymentManager;
 import de.evoila.cf.cpi.bosh.deployment.manifest.Manifest;
@@ -25,7 +25,7 @@ public class CouchDBDeploymentManager extends DeploymentManager {
     }
 
     @Override
-    protected void replaceParameters(ServiceInstance serviceInstance, Manifest manifest, Plan plan, Map<String, Object> customParameters) {
+    protected void replaceParameters(ServiceInstance serviceInstance, Manifest manifest, Plan plan, Map<String, Object> customParameters, boolean isUpdate) {
         HashMap<String, Object> properties = new HashMap<>();
         if (customParameters != null && !customParameters.isEmpty())
             properties.putAll(customParameters);
