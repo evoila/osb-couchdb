@@ -16,10 +16,11 @@ import de.evoila.cf.broker.repository.*;
 import de.evoila.cf.broker.service.AsyncBindingService;
 import de.evoila.cf.broker.service.HAProxyService;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
-import de.evoila.cf.broker.util.RandomString;
 import de.evoila.cf.broker.util.ServiceInstanceUtils;
+import de.evoila.cf.security.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -54,7 +55,7 @@ public class CouchDbBindingService extends BindingServiceImpl {
     RandomString passwordRandomString = new RandomString(15);
 
     public CouchDbBindingService(BindingRepository bindingRepository, ServiceDefinitionRepository serviceDefinitionRepository, ServiceInstanceRepository serviceInstanceRepository,
-                                 RouteBindingRepository routeBindingRepository, HAProxyService haProxyService, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation,
+                                 RouteBindingRepository routeBindingRepository, @Autowired( required = false ) HAProxyService haProxyService, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation,
                                  JobRepository jobRepository, AsyncBindingService asyncBindingService, PlatformRepository platformRepository) {
         super(bindingRepository, serviceDefinitionRepository, serviceInstanceRepository, routeBindingRepository, haProxyService, jobRepository, asyncBindingService, platformRepository);
         this.existingEndpointBean = existingEndpointBean;
