@@ -5,10 +5,3 @@ spring:
   data:
     mongodb:
       host: "${MONGODB_HOST}"
-haproxy:
-  uri: "https://${HAPROXY-AGENT_HOST}/agents/${HAPROXY-AGENT_ID}/schemas?type=listen"
-existing:
-  endpoint:
-    pcfHosts: "${HAPROXY_HOSTS}"
-    name: haproxy
-    port: 5984
