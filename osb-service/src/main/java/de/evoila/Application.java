@@ -23,8 +23,7 @@ import java.util.Map;
  * `cf create-service-broker name username password url --space-scoped`
  */
 @RefreshScope
-@SpringBootApplication
-@EnableAutoConfiguration(exclude = { RabbitAutoConfiguration.class, BusAutoConfiguration.class })
+@SpringBootApplication(exclude = { RabbitAutoConfiguration.class, BusAutoConfiguration.class })
 public class Application {
 
 	@Bean(name = "customProperties")
