@@ -31,3 +31,5 @@ osb-service/src/main/resources/static/
 osb-service/src/main/resources/templates/
 osb-service/src/main/resources/application.yml
 
+application-local.yml
+manifest.yml
