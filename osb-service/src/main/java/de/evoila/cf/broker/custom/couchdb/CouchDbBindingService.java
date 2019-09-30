@@ -14,7 +14,6 @@ import de.evoila.cf.broker.model.catalog.ServerAddress;
 import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.repository.*;
 import de.evoila.cf.broker.service.AsyncBindingService;
-import de.evoila.cf.broker.service.HAProxyService;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.util.ServiceInstanceUtils;
 import de.evoila.cf.security.utils.RandomString;
@@ -55,9 +54,9 @@ public class CouchDbBindingService extends BindingServiceImpl {
     RandomString passwordRandomString = new RandomString(15);
 
     public CouchDbBindingService(BindingRepository bindingRepository, ServiceDefinitionRepository serviceDefinitionRepository, ServiceInstanceRepository serviceInstanceRepository,
-                                 RouteBindingRepository routeBindingRepository, @Autowired( required = false ) HAProxyService haProxyService, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation,
+                                 RouteBindingRepository routeBindingRepository, ExistingEndpointBean existingEndpointBean, CouchDbCustomImplementation couchDbCustomImplementation,
                                  JobRepository jobRepository, AsyncBindingService asyncBindingService, PlatformRepository platformRepository) {
-        super(bindingRepository, serviceDefinitionRepository, serviceInstanceRepository, routeBindingRepository, haProxyService, jobRepository, asyncBindingService, platformRepository);
+        super(bindingRepository, serviceDefinitionRepository, serviceInstanceRepository, routeBindingRepository, jobRepository, asyncBindingService, platformRepository);
         this.existingEndpointBean = existingEndpointBean;
         this.serviceDefinitionRepository = serviceDefinitionRepository;
         this.couchDbCustomImplementation = couchDbCustomImplementation;
