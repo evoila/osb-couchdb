@@ -1,0 +1,18 @@
+---
+applications:
+  - name: osb-couchdb
+    memory: 1G
+    instances: 1
+    timeout: 180
+    routes:
+      - route: osb-couchdb.your.cf.host
+    buildpacks:
+      - https://github.com/cloudfoundry/java-buildpack.git
+      # -> version suffix necessary, if the buildpack of the CF instance is not supporting the wanted Java version
+    path: osb-service/target/osb-couchdb-1.2.0.jar
+    env:
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 12.+ } }' 
+      # -> necessary for Java 12, if the buildpack of the CF instance is not supporting Java 12
+      ENV_VARIABLE_ONE: test
+      ENV_VARIABLE_TWO: http://test-url.com
+      ENV_VARIABLE_THREE: 42
