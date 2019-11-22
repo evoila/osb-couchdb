@@ -1,0 +1,9 @@
+{
+  "service_id": "9372FCCA-EC21-4EC5-B86B-B51E5D75DBET",
+  "plan_id": "C433FC45-6404-433D-A5A5-F826817CF5BT",
+  "organization_guid": "org-guid-here",
+  "space_guid": "space-guid-here",
+  "parameters": {
+    "name": "marco"
+  }
+}
