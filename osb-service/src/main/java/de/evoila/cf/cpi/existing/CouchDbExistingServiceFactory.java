@@ -12,7 +12,7 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
-import de.evoila.cf.broker.util.RandomString;
+import de.evoila.cf.security.utils.RandomString;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 import org.slf4j.Logger;
