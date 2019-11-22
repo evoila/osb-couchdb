@@ -45,7 +45,7 @@ public class CouchDbService {
 		try {
 			couchDbClient = new CouchDbClient(config);
 		} catch (Exception e) {
-			throw new PlatformException("connection am arsch");
+			throw new PlatformException("Connection error to CouchDB");
 		}
 		setInitialized(true);
 	}
