@@ -10,6 +10,8 @@ import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.CatalogService;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
+import de.evoila.cf.cpi.CredentialConstants;
+import de.evoila.cf.security.credentials.CredentialStore;
 import io.bosh.client.deployments.Deployment;
 import io.bosh.client.vms.Vm;
 import org.lightcouch.CouchDbClient;
@@ -27,12 +29,17 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
 
     private final int defaultPort = 5984;
 
+    private CredentialStore credentialStore;
+
     private CouchDbCustomImplementation couchDbCustomImplementation;
 
     public CouchDBBoshPlatformService(PlatformRepository repository, CatalogService catalogService, ServicePortAvailabilityVerifier availabilityVerifier,
-                               BoshProperties boshProperties, Optional<DashboardClient> dashboardClient, Environment environment, CouchDbCustomImplementation couchDbCustomImplementation) {
-        super(repository, catalogService, availabilityVerifier, boshProperties, dashboardClient, new CouchDBDeploymentManager(boshProperties, environment));
+                                      BoshProperties boshProperties, Optional<DashboardClient> dashboardClient, Environment environment,
+                                      CouchDbCustomImplementation couchDbCustomImplementation, CredentialStore credentialStore) {
+        super(repository, catalogService, availabilityVerifier, boshProperties, dashboardClient, new CouchDBDeploymentManager(boshProperties, environment, credentialStore));
         this.couchDbCustomImplementation = couchDbCustomImplementation;
+        this.credentialStore = credentialStore;
+
     }
 
     @Override
@@ -52,7 +59,9 @@ public class CouchDBBoshPlatformService extends BoshPlatformService {
     }
 
     @Override
-    public void postDeleteInstance(ServiceInstance serviceInstance) { }
+    public void postDeleteInstance(ServiceInstance serviceInstance) {
+        credentialStore.deleteCredentials(serviceInstance, CredentialConstants.ROOT_CREDENTIALS);
+    }
 
     private void createDefaultDatabase(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 
